@@ -7,7 +7,7 @@ address = "0.0.0.0:4317"
 [sources.boomi_otel.http]
 address = "0.0.0.0:4318"
 
-[transforms.logs_raw]
+[transforms.logs_transformed]
 type = "remap"
 inputs = ["boomi_otel.logs"]
 source = '''
@@ -20,7 +20,7 @@ if exists(.attributes) {
 }
 '''
 
-[transforms.metrics_raw]
+[transforms.metrics_transformed]
 type = "remap"
 inputs = ["boomi_otel.metrics"]
 source = '''
@@ -28,18 +28,8 @@ source = '''
 .data_source = "boomi"
 '''
 
-[sinks.opensearch_logs]
-type = "elasticsearch"
-inputs = ["logs_raw"]
-endpoints = ["http://opensearch:9200"]
-mode = "bulk"
-api_version = "v8"
-bulk.index = "boomi-logs-%Y-%m-%d"
-
-[sinks.opensearch_metrics]
-type = "elasticsearch"
-inputs = ["metrics_raw"]
-endpoints = ["http://opensearch:9200"]
-mode = "bulk"
-api_version = "v8"
-bulk.index = "boomi-metrics-%Y-%m-%d"
+[sinks.otel_collector_forward]
+type = "http"
+inputs = ["logs_transformed", "metrics_transformed"]
+uri = "http://otel-collector:4321"
+encoding.codec = "json"
