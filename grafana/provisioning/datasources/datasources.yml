@@ -7,11 +7,11 @@ datasources:
     url: http://opensearch:9200
     isDefault: true
     jsonData:
-      timeField: timestamp
+      timeField: ingestion_timestamp
       version: 2.0.0
-      logMessageField: message
-      logLevelField: severity_number
-      database: boomi-logs-*
+      logMessageField: body
+      logLevelField: severity_text
+      database: boomi-logs
     editable: true
 
   - name: OpenSearch Metrics
@@ -19,7 +19,17 @@ datasources:
     access: proxy
     url: http://opensearch:9200
     jsonData:
-      timeField: timestamp
+      timeField: ingestion_timestamp
       version: 2.0.0
-      database: boomi-metrics-*
+      database: boomi-metrics
+    editable: true
+
+  - name: OpenSearch Traces
+    type: grafana-opensearch-datasource
+    access: proxy
+    url: http://opensearch:9200
+    jsonData:
+      timeField: ingestion_timestamp
+      version: 2.0.0
+      database: boomi-traces
     editable: true

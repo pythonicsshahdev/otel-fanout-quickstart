@@ -1,0 +1,108 @@
+receivers:
+  otlp/from_vector:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4321
+  otlp/from_boomi:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+
+exporters:
+  elasticsearch/logs:
+    endpoints: ["{{consumers.opensearch.endpoint}}"]
+    logs_index: boomi-logs
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+  elasticsearch/metrics:
+    endpoints: ["{{consumers.opensearch.endpoint}}"]
+    logs_index: boomi-metrics
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+  opensearch/traces:
+    http:
+      endpoint: "{{consumers.opensearch.endpoint}}"
+      timeout: 30s
+    logs_index: boomi-traces
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{#if consumers.splunk.enabled}}
+  splunk_hec/splunk:
+    token: "{{consumers.splunk.token}}"
+    endpoint: "{{consumers.splunk.endpoint}}"
+    source: boomi
+    sourcetype: _json
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
+{{#if consumers.newrelic.enabled}}
+  otlp/newrelic:
+    endpoint: https://otlp.nr-data.net:4317
+    headers:
+      api-key: "{{consumers.newrelic.license_key}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
+{{#if consumers.datadog.enabled}}
+  datadog/datadog:
+    api:
+      key: "{{consumers.datadog.api_key}}"
+      site: "{{consumers.datadog.site}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
+{{#if consumers.dynatrace.enabled}}
+  otlp/dynatrace:
+    endpoint: "{{consumers.dynatrace.endpoint}}"
+    headers:
+      Authorization: "Api-Token {{consumers.dynatrace.api_token}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
+{{#if consumers.prometheus.enabled}}
+  prometheusremotewrite/prometheus:
+    endpoint: "{{consumers.prometheus.endpoint}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
+
+service:
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888
+  pipelines:
+    logs:
+      receivers: [otlp/from_vector]
+      processors: [batch]
+      exporters: [elasticsearch/logs{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
+    metrics:
+      receivers: [otlp/from_vector]
+      processors: [batch]
+      exporters: [elasticsearch/metrics{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
+    traces:
+      receivers: [otlp/from_boomi]
+      processors: [batch]
+      exporters: [opensearch/traces{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]

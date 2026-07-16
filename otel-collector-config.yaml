@@ -1,5 +1,9 @@
 receivers:
-  otlp:
+  otlp/from_vector:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4321
+  otlp/from_boomi:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
@@ -12,20 +16,44 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  opensearch:
-    dataset: traces
-    namespace: boomi
-    logs_index: boomi-traces
+  elasticsearch/logs:
+    endpoints: ["http://opensearch:9200"]
+    logs_index: boomi-logs
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+  elasticsearch/metrics:
+    endpoints: ["http://opensearch:9200"]
+    logs_index: boomi-metrics
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+  opensearch/traces:
     http:
-      endpoint: http://opensearch:9200
+      endpoint: "http://opensearch:9200"
       timeout: 30s
-
-  debug:
-    verbosity: detailed
+    logs_index: boomi-traces
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
 
 service:
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888
   pipelines:
-    traces:
-      receivers: [otlp]
+    logs:
+      receivers: [otlp/from_vector]
       processors: [batch]
-      exporters: [opensearch, debug]
+      exporters: [elasticsearch/logs]
+    metrics:
+      receivers: [otlp/from_vector]
+      processors: [batch]
+      exporters: [elasticsearch/metrics]
+    traces:
+      receivers: [otlp/from_boomi]
+      processors: [batch]
+      exporters: [opensearch/traces]
