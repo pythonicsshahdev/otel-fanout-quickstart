@@ -3,6 +3,8 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4321
+      http:
+        endpoint: 0.0.0.0:4322
   otlp/from_boomi:
     protocols:
       grpc:

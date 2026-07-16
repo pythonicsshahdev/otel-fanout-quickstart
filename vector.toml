@@ -29,7 +29,11 @@ source = '''
 '''
 
 [sinks.otel_collector_forward]
-type = "http"
+type = "opentelemetry"
 inputs = ["logs_transformed", "metrics_transformed"]
-uri = "http://otel-collector:4321"
+endpoint = "http://otel-collector:4322"
+
+[sinks.otel_collector_forward.protocol]
+type = "http"
+uri = "http://otel-collector:4322"
 encoding.codec = "json"
