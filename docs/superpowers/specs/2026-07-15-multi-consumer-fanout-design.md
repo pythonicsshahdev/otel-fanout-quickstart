@@ -77,6 +77,7 @@ Control Plane UI :8080 (React + Vite, served by nginx)
     "splunk": { "enabled": false, "endpoint": "", "token": "" },
     "newrelic": { "enabled": false, "license_key": "" },
     "datadog": { "enabled": false, "api_key": "", "site": "datadoghq.com" },
+    "dynatrace": { "enabled": false, "endpoint": "", "api_token": "" },
     "prometheus": { "enabled": false, "endpoint": "http://prometheus:9090/api/v1/write" }
   }
 }

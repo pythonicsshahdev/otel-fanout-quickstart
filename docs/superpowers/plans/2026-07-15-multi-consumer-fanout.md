@@ -44,6 +44,7 @@
     "splunk": { "enabled": false, "endpoint": "", "token": "" },
     "newrelic": { "enabled": false, "license_key": "" },
     "datadog": { "enabled": false, "api_key": "", "site": "datadoghq.com" },
+    "dynatrace": { "enabled": false, "endpoint": "", "api_token": "" },
     "prometheus": { "enabled": false, "endpoint": "" }
   }
 }
@@ -124,6 +125,16 @@ exporters:
     retry_on_failure:
       enabled: true
 {{/if}}
+{{#if consumers.dynatrace.enabled}}
+  otlp/dynatrace:
+    endpoint: "{{consumers.dynatrace.endpoint}}"
+    headers:
+      Authorization: "Api-Token {{consumers.dynatrace.api_token}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
 {{#if consumers.prometheus.enabled}}
   prometheusremotewrite/prometheus:
     endpoint: "{{consumers.prometheus.endpoint}}"
@@ -141,15 +152,15 @@ service:
     logs:
       receivers: [otlp/from_vector]
       processors: [batch]
-      exporters: [elasticsearch/logs{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}]
+      exporters: [elasticsearch/logs{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
     metrics:
       receivers: [otlp/from_vector]
       processors: [batch]
-      exporters: [elasticsearch/metrics{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
+      exporters: [elasticsearch/metrics{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
     traces:
       receivers: [otlp/from_boomi]
       processors: [batch]
-      exporters: [opensearch/traces{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}]
+      exporters: [opensearch/traces{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
 ```
 
 - [ ] **Step 3: Replace `otel-collector-config.yaml` with the rendered default output**
@@ -735,6 +746,10 @@ const FIELDS = {
     { key: 'api_key', label: 'API Key', placeholder: 'your-api-key', type: 'password' },
     { key: 'site', label: 'Site', placeholder: 'datadoghq.com' }
   ],
+  dynatrace: [
+    { key: 'endpoint', label: 'OTLP Endpoint', placeholder: 'https://{env-id}.live.dynatrace.com/api/v2/otlp' },
+    { key: 'api_token', label: 'API Token', placeholder: 'dt0c01.your-token', type: 'password' }
+  ],
   prometheus: [
     { key: 'endpoint', label: 'Remote Write URL', placeholder: 'http://prometheus:9090/api/v1/write' }
   ]
@@ -745,6 +760,7 @@ const LABELS = {
   splunk: 'Splunk',
   newrelic: 'New Relic',
   datadog: 'Datadog',
+  dynatrace: 'Dynatrace',
   prometheus: 'Prometheus (metrics only)'
 };
 
@@ -810,6 +826,7 @@ const CONSUMER_LABELS = {
   splunk: 'Splunk HEC',
   newrelic: 'New Relic',
   datadog: 'Datadog',
+  dynatrace: 'Dynatrace',
   prometheus: 'Prometheus\n(metrics only)'
 };
 
