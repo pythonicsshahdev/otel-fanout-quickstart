@@ -1,0 +1,25 @@
+apiVersion: 1
+
+datasources:
+  - name: OpenSearch Logs
+    type: grafana-opensearch-datasource
+    access: proxy
+    url: http://opensearch:9200
+    isDefault: true
+    jsonData:
+      timeField: timestamp
+      version: 2.0.0
+      logMessageField: message
+      logLevelField: severity_number
+      database: boomi-logs-*
+    editable: true
+
+  - name: OpenSearch Metrics
+    type: grafana-opensearch-datasource
+    access: proxy
+    url: http://opensearch:9200
+    jsonData:
+      timeField: timestamp
+      version: 2.0.0
+      database: boomi-metrics-*
+    editable: true

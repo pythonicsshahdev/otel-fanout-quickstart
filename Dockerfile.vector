@@ -1,0 +1,14 @@
+FROM timberio/vector:latest-alpine
+
+LABEL maintainer="pythonicshahdev"
+LABEL description="Vector OTLP receiver for Boomi telemetry (logs and metrics)"
+LABEL version="1.0.0"
+
+# Copy custom configuration
+COPY vector.toml /etc/vector/vector.toml
+
+# Expose OTLP ports
+EXPOSE 4317 4318
+
+# Run Vector with custom config
+CMD ["--config", "/etc/vector/vector.toml"]

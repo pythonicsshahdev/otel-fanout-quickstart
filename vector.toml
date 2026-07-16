@@ -1,0 +1,45 @@
+[sources.boomi_otel]
+type = "opentelemetry"
+
+[sources.boomi_otel.grpc]
+address = "0.0.0.0:4317"
+
+[sources.boomi_otel.http]
+address = "0.0.0.0:4318"
+
+[transforms.logs_raw]
+type = "remap"
+inputs = ["boomi_otel.logs"]
+source = '''
+.ingestion_timestamp = now()
+.data_source = "boomi"
+
+if exists(.attributes) {
+  .attributes_raw = encode_json(.attributes)
+  del(.attributes)
+}
+'''
+
+[transforms.metrics_raw]
+type = "remap"
+inputs = ["boomi_otel.metrics"]
+source = '''
+.ingestion_timestamp = now()
+.data_source = "boomi"
+'''
+
+[sinks.opensearch_logs]
+type = "elasticsearch"
+inputs = ["logs_raw"]
+endpoints = ["http://opensearch:9200"]
+mode = "bulk"
+api_version = "v8"
+bulk.index = "boomi-logs-%Y-%m-%d"
+
+[sinks.opensearch_metrics]
+type = "elasticsearch"
+inputs = ["metrics_raw"]
+endpoints = ["http://opensearch:9200"]
+mode = "bulk"
+api_version = "v8"
+bulk.index = "boomi-metrics-%Y-%m-%d"
