@@ -28,12 +28,18 @@ source = '''
 .data_source = "boomi"
 '''
 
-[sinks.otel_collector_forward]
-type = "opentelemetry"
-inputs = ["logs_transformed", "metrics_transformed"]
-endpoint = "http://otel-collector:4322"
+[sinks.opensearch_logs]
+type = "elasticsearch"
+inputs = ["logs_transformed"]
+endpoints = ["http://opensearch:9200"]
+mode = "bulk"
+bulk.index = "boomi-logs"
+api_version = "v8"
 
-[sinks.otel_collector_forward.protocol]
-type = "http"
-uri = "http://otel-collector:4322"
-encoding.codec = "json"
+[sinks.opensearch_metrics]
+type = "elasticsearch"
+inputs = ["metrics_transformed"]
+endpoints = ["http://opensearch:9200"]
+mode = "bulk"
+bulk.index = "boomi-metrics"
+api_version = "v8"

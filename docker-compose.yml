@@ -34,22 +34,6 @@ services:
       opensearch:
         condition: service_healthy
 
-  vector:
-    image: timberio/vector:latest-alpine
-    container_name: vector
-    command: ["--config", "/etc/vector/vector.toml"]
-    volumes:
-      - ./vector.toml:/etc/vector/vector.toml
-    ports:
-      - "4317:4317"  # OTLP gRPC for logs/metrics
-      - "4318:4318"  # OTLP HTTP for logs/metrics
-    networks:
-      - boomi-net
-    depends_on:
-      opensearch:
-        condition: service_healthy
-    restart: on-failure
-
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
@@ -57,12 +41,28 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
-      - "4319:4317"  # OTLP gRPC for traces (different host port)
-      - "4320:4318"  # OTLP HTTP for traces (different host port)
+      - "4319:4317"
+      - "4320:4318"
     networks:
       - boomi-net
     depends_on:
-      - opensearch
+      opensearch:
+        condition: service_healthy
+    restart: on-failure
+
+  vector:
+    image: timberio/vector:latest-alpine
+    container_name: vector
+    command: ["--config", "/etc/vector/vector.toml"]
+    volumes:
+      - ./vector.toml:/etc/vector/vector.toml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - boomi-net
+    depends_on:
+      - otel-collector
     restart: on-failure
 
   grafana:
@@ -81,6 +81,28 @@ services:
     depends_on:
       - opensearch
 
+  control-plane:
+    build:
+      context: ./control-plane
+    container_name: control-plane
+    ports:
+      - "8080:8080"
+    environment:
+      - CONSUMERS_PATH=/data/consumers.json
+      - TEMPLATE_PATH=/templates/otel-collector-config.hbs
+      - CONFIG_OUTPUT_PATH=/config/otel-collector-config.yaml
+      - COLLECTOR_CONTAINER=otel-collector
+      - DEPLOY_TARGET=compose
+    volumes:
+      - consumers-data:/data
+      - ./otel-collector-config.hbs:/templates/otel-collector-config.hbs:ro
+      - ./otel-collector-config.yaml:/config/otel-collector-config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - boomi-net
+    depends_on:
+      - otel-collector
+
 networks:
   boomi-net:
     driver: bridge
@@ -88,3 +110,4 @@ networks:
 volumes:
   opensearch-data:
   grafana-data:
+  consumers-data:

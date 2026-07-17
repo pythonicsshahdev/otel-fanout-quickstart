@@ -1,8 +1,6 @@
 receivers:
   otlp/from_vector:
     protocols:
-      grpc:
-        endpoint: 0.0.0.0:4321
       http:
         endpoint: 0.0.0.0:4322
   otlp/from_boomi:
@@ -21,31 +19,23 @@ exporters:
   elasticsearch/logs:
     endpoints: ["http://opensearch:9200"]
     logs_index: boomi-logs
-    sending_queue:
-      enabled: true
-    retry_on_failure:
-      enabled: true
+    mapping:
+      mode: ecs
   elasticsearch/metrics:
     endpoints: ["http://opensearch:9200"]
     logs_index: boomi-metrics
-    sending_queue:
-      enabled: true
-    retry_on_failure:
-      enabled: true
+    mapping:
+      mode: ecs
   opensearch/traces:
     http:
       endpoint: "http://opensearch:9200"
       timeout: 30s
     logs_index: boomi-traces
-    sending_queue:
-      enabled: true
-    retry_on_failure:
-      enabled: true
 
 service:
   telemetry:
     metrics:
-      address: 0.0.0.0:8888
+      level: detailed
   pipelines:
     logs:
       receivers: [otlp/from_vector]
