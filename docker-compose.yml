@@ -41,8 +41,8 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
-      - "4319:4317"
-      - "4320:4318"
+      - "4317:4317"
+      - "4318:4318"
     networks:
       - boomi-net
     depends_on:
@@ -57,8 +57,8 @@ services:
     volumes:
       - ./vector.toml:/etc/vector/vector.toml
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4319:4317"
+      - "4320:4318"
     networks:
       - boomi-net
     depends_on:
@@ -86,7 +86,7 @@ services:
       context: ./control-plane
     container_name: control-plane
     ports:
-      - "8080:8080"
+      - "8090:8090"
     environment:
       - CONSUMERS_PATH=/data/consumers.json
       - TEMPLATE_PATH=/templates/otel-collector-config.hbs

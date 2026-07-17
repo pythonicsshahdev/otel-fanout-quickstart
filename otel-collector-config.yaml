@@ -1,9 +1,5 @@
 receivers:
-  otlp/from_vector:
-    protocols:
-      http:
-        endpoint: 0.0.0.0:4322
-  otlp/from_boomi:
+  otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
@@ -38,14 +34,14 @@ service:
       level: detailed
   pipelines:
     logs:
-      receivers: [otlp/from_vector]
+      receivers: [otlp]
       processors: [batch]
       exporters: [elasticsearch/logs]
     metrics:
-      receivers: [otlp/from_vector]
+      receivers: [otlp]
       processors: [batch]
       exporters: [elasticsearch/metrics]
     traces:
-      receivers: [otlp/from_boomi]
+      receivers: [otlp]
       processors: [batch]
       exporters: [opensearch/traces]
