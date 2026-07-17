@@ -15,13 +15,17 @@ exporters:
   elasticsearch/logs:
     endpoints: ["http://opensearch:9200"]
     logs_index: boomi-logs
-    mapping:
-      mode: ecs
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
   elasticsearch/metrics:
     endpoints: ["http://opensearch:9200"]
     logs_index: boomi-metrics
-    mapping:
-      mode: ecs
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
   opensearch/traces:
     http:
       endpoint: "http://opensearch:9200"
