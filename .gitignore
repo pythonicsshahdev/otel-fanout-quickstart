@@ -2,3 +2,5 @@ node_modules/
 npm-debug.log*
 .env
 *.bak
+control-plane/frontend/dist/
+.superpowers/
