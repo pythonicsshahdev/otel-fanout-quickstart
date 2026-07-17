@@ -38,9 +38,10 @@ test('renders prometheusremotewrite only in metrics pipeline', () => {
   const consumers = { ...BASE_CONSUMERS, prometheus: { enabled: true, endpoint: 'http://prom:9090/api/v1/write' } };
   const yaml = renderConfig(consumers, TEMPLATE_PATH);
   expect(yaml).toContain('prometheusremotewrite/prometheus');
-  const metricsPipelineSection = yaml.split('metrics:')[1].split('traces:')[0];
+  const pipelinesBlock = yaml.split('pipelines:')[1];
+  const metricsPipelineSection = pipelinesBlock.split('metrics:')[1].split('traces:')[0];
   expect(metricsPipelineSection).toContain('prometheusremotewrite/prometheus');
-  const tracesPipelineSection = yaml.split('traces:')[1];
+  const tracesPipelineSection = pipelinesBlock.split('traces:')[1];
   expect(tracesPipelineSection).not.toContain('prometheusremotewrite/prometheus');
 });
 

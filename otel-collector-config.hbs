@@ -25,10 +25,18 @@ exporters:
       enabled: true
     retry_on_failure:
       enabled: true
-  ? elasticsearch/metrics
-  :
+  elasticsearch/metrics:
     endpoints: ["{{consumers.opensearch.endpoint}}"]
     logs_index: boomi-metrics
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+  opensearch/traces:
+    http:
+      endpoint: "{{consumers.opensearch.endpoint}}"
+      timeout: 30s
+    logs_index: boomi-traces
     sending_queue:
       enabled: true
     retry_on_failure:
@@ -44,24 +52,6 @@ exporters:
     retry_on_failure:
       enabled: true
 {{/if}}
-{{#if consumers.prometheus.enabled}}
-  prometheusremotewrite/prometheus:
-    endpoint: "{{consumers.prometheus.endpoint}}"
-    sending_queue:
-      enabled: true
-    retry_on_failure:
-      enabled: true
-{{/if}}
-  ? opensearch/traces
-  :
-    http:
-      endpoint: "{{consumers.opensearch.endpoint}}"
-      timeout: 30s
-    logs_index: boomi-traces
-    sending_queue:
-      enabled: true
-    retry_on_failure:
-      enabled: true
 {{#if consumers.newrelic.enabled}}
   otlp/newrelic:
     endpoint: https://otlp.nr-data.net:4317
@@ -92,11 +82,19 @@ exporters:
     retry_on_failure:
       enabled: true
 {{/if}}
+{{#if consumers.prometheus.enabled}}
+  prometheusremotewrite/prometheus:
+    endpoint: "{{consumers.prometheus.endpoint}}"
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
+{{/if}}
 
 service:
   telemetry:
-    logs:
-      level: warn
+    metrics:
+      address: 0.0.0.0:8888
   pipelines:
     logs:
       receivers: [otlp/from_vector]
