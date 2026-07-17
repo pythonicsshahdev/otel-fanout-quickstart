@@ -31,6 +31,10 @@ exporters:
       endpoint: "http://opensearch:9200"
       timeout: 30s
     logs_index: boomi-traces
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
 
 service:
   telemetry:

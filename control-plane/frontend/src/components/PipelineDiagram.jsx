@@ -22,7 +22,7 @@ export default function PipelineDiagram({ consumers, collectorHealthy }) {
 
     const nodes = [
       { id: 'boomi', position: { x: 0, y: 120 }, data: { label: 'Boomi Atom' }, style: BOX },
-      { id: 'vector', position: { x: 220, y: 60 }, data: { label: 'Vector\n:4317/:4318\nlogs + metrics' }, style: BOX },
+      { id: 'vector', position: { x: 220, y: 60 }, data: { label: 'Vector\n:4319/:4320\n(optional sidecar)' }, style: BOX },
       {
         id: 'otel', position: { x: 220, y: 180 },
         data: { label: 'OTel Collector\n:4319/:4320 traces' },
@@ -36,9 +36,8 @@ export default function PipelineDiagram({ consumers, collectorHealthy }) {
     ];
 
     const edges = [
-      { id: 'b-v', source: 'boomi', target: 'vector', label: 'OTLP logs/metrics', animated: true },
-      { id: 'b-o', source: 'boomi', target: 'otel', label: 'OTLP traces', animated: true },
-      { id: 'v-o', source: 'vector', target: 'otel', label: 'OTLP :4321', animated: true },
+      { id: 'b-v', source: 'boomi', target: 'vector', label: 'OTLP preprocessing\n(optional)', animated: true },
+      { id: 'b-o', source: 'boomi', target: 'otel', label: 'OTLP all signals\n:4317/:4318', animated: true },
       ...enabled.map(([name]) => ({
         id: `o-${name}`, source: 'otel', target: `c_${name}`, animated: collectorHealthy
       }))

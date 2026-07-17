@@ -15,14 +15,26 @@ exporters:
   elasticsearch/logs:
     endpoints: ["{{consumers.opensearch.endpoint}}"]
     logs_index: boomi-logs
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
   elasticsearch/metrics:
     endpoints: ["{{consumers.opensearch.endpoint}}"]
     logs_index: boomi-metrics
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
   opensearch/traces:
     http:
       endpoint: "{{consumers.opensearch.endpoint}}"
       timeout: 30s
     logs_index: boomi-traces
+    sending_queue:
+      enabled: true
+    retry_on_failure:
+      enabled: true
 {{#if consumers.splunk.enabled}}
   splunk_hec/splunk:
     token: "{{consumers.splunk.token}}"

@@ -47,14 +47,18 @@ app.post('/api/consumers', async (req, res) => {
     fs.writeFileSync(CONSUMERS_PATH, JSON.stringify({ consumers }, null, 2));
 
     const yaml = renderConfig(consumers, TEMPLATE_PATH);
-    fs.writeFileSync(CONFIG_OUTPUT_PATH, yaml);
+    const tmpPath = CONFIG_OUTPUT_PATH + '.tmp';
+    fs.writeFileSync(tmpPath, yaml);
+    fs.renameSync(tmpPath, CONFIG_OUTPUT_PATH);
 
     await restartContainer(COLLECTOR_CONTAINER);
     const running = await waitForRunning(COLLECTOR_CONTAINER);
 
     if (!running) {
       if (fs.existsSync(backupPath)) {
-        fs.copyFileSync(backupPath, CONFIG_OUTPUT_PATH);
+        const tmpRollback = CONFIG_OUTPUT_PATH + '.tmp';
+        fs.copyFileSync(backupPath, tmpRollback);
+        fs.renameSync(tmpRollback, CONFIG_OUTPUT_PATH);
         await restartContainer(COLLECTOR_CONTAINER);
       }
       return res.status(500).json({ ok: false, error: 'Collector failed to restart; config rolled back' });
