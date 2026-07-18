@@ -1,0 +1,230 @@
+{
+  "title": "Runtime Status",
+  "uid": "runtime-status",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "boomi", "runtime"],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Low Memory Mode",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:runtime.isLowMemoryMode",
+        "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "orientation": "auto" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Normal", "color": "green" }, "1": { "text": "LOW MEMORY", "color": "red" } } }], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "color": { "mode": "thresholds" } }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Out of Memory Error",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:runtime.isOutOfMemoryError",
+        "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "OK", "color": "green" }, "1": { "text": "OOM ERROR", "color": "red" } } }], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "color": { "mode": "thresholds" } }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Restarting",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:runtime.isRestarting",
+        "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Running", "color": "green" }, "1": { "text": "RESTARTING", "color": "orange" } } }], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }] }, "color": { "mode": "thresholds" } }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Scheduled Processes",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:runtime.scheduleCount",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Platform Messaging — Upload",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:runtime.platformMessaging.uploadDeliveredCount",
+          "alias": "Delivered",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:runtime.platformMessaging.uploadFailureCount",
+          "alias": "Failures",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:runtime.platformMessaging.uploadPendingCount",
+          "alias": "Pending",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Failures" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Pending" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Platform Messaging — Download",
+      "id": 6,
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:runtime.platformMessaging.downloadDeliveredCount",
+          "alias": "Delivered",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:runtime.platformMessaging.downloadFailureCount",
+          "alias": "Failures",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Failures" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Queue Server Memory & Disk",
+      "id": 7,
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:plugin.queueServer.memory",
+          "alias": "Memory Used",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:plugin.queueServer.diskUsage",
+          "alias": "Disk Used",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:plugin.queueServer.config.maxMemory",
+          "alias": "Max Memory",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Max Memory" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Queue Server Count & Threads",
+      "id": 8,
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:plugin.queueServer.count",
+          "alias": "Queue Count",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:plugin.queueServer.config.maxThreads",
+          "alias": "Max Threads",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    }
+  ]
+}

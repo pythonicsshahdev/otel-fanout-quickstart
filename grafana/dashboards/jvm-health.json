@@ -1,0 +1,201 @@
+{
+  "title": "JVM Health",
+  "uid": "jvm-health",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "jvm", "boomi"],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Heap Used",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:jvm.heap.current",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "thresholds" }, "thresholds": { "mode": "percentage", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 85 }] } }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Heap Max",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:jvm.heap.max",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Non-Heap Used",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:jvm.nonheap.current",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Active Threads",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:jvm.threads.active",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
+        "timeField": "timestamp"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Heap Usage Over Time",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.heap.current",
+          "alias": "Heap Used",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.heap.max",
+          "alias": "Heap Max",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.nonheap.current",
+          "alias": "Non-Heap Used",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Heap Max" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "GC Activity",
+      "id": 6,
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.gc.count",
+          "alias": "GC Count",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.gc.time",
+          "alias": "GC Time (ms)",
+          "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Threads & CPU",
+      "id": 7,
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.threads.active",
+          "alias": "Active Threads",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+          "query": "name:jvm.cpu.time",
+          "alias": "CPU Time",
+          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "timestamp"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Heap Usage by Runtime",
+      "id": 8,
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+      "targets": [{
+        "refId": "A",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "name:jvm.heap.current",
+        "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
+        "bucketAggs": [
+          { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "5", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+          { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+        ],
+        "timeField": "timestamp"
+      }],
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    }
+  ]
+}
