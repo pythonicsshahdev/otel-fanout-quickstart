@@ -17,14 +17,10 @@ exporters:
     logs_index: boomi-logs
     sending_queue:
       enabled: true
-    retry_on_failure:
-      enabled: true
   elasticsearch/metrics:
     endpoints: ["http://opensearch:9200"]
     logs_index: boomi-metrics
     sending_queue:
-      enabled: true
-    retry_on_failure:
       enabled: true
   opensearch/traces:
     http:
@@ -33,13 +29,22 @@ exporters:
     logs_index: boomi-traces
     sending_queue:
       enabled: true
-    retry_on_failure:
-      enabled: true
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 
 service:
+  extensions: [health_check]
   telemetry:
     metrics:
       level: detailed
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: "0.0.0.0"
+                port: 8888
   pipelines:
     logs:
       receivers: [otlp]
