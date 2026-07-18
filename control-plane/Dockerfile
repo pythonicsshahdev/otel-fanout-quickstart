@@ -18,6 +18,12 @@ COPY backend/ /app/backend/
 COPY --from=frontend-build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Bake in default configs so the image works standalone from Docker Hub
+COPY defaults/ /defaults/
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 8090
 
-CMD sh -c "node /app/backend/server.js & nginx -g 'daemon off;'"
+CMD ["/docker-entrypoint.sh"]

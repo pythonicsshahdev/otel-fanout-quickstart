@@ -5,4 +5,9 @@ RUN apk add --no-cache curl unzip && \
          -o /tmp/opensearch-plugin.zip && \
     unzip -q /tmp/opensearch-plugin.zip -d /var/lib/grafana/plugins && \
     rm /tmp/opensearch-plugin.zip
+
+# Bake in provisioning and dashboards so the image works standalone from Docker Hub
+COPY provisioning/ /etc/grafana/provisioning/
+COPY dashboards/ /etc/grafana/dashboards/
+
 USER grafana
