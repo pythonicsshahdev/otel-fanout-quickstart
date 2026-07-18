@@ -7,6 +7,80 @@
 
 ---
 
+## Architecture Overview
+
+The OTel Fanout Platform is a Docker Compose-based observability pipeline that receives telemetry from any OTLP-compatible source and fans it out to one or more downstream consumers — all managed through a browser-based Control Plane UI.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        TELEMETRY SOURCES                            │
+│                                                                     │
+│   Boomi Atom / Molecule    Boomi Agent Studio    Copilot Agents     │
+│           │                       │                    │            │
+│           └───────────────────────┴────────────────────┘            │
+│                               OTLP                                  │
+│                          :4317 / :4318                              │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌───────────────────────────────────────────────────────────────────┐
+│                       OTel Collector                              │
+│                                                                   │
+│   • Receives all signals (logs, metrics, traces)                  │
+│   • Batches and routes to all enabled consumers                   │
+│   • Exposes pipeline health metrics on :8888                      │
+└────┬──────────────┬──────────────┬──────────────┬────────────────┘
+     │              │              │              │
+     ▼              ▼              ▼              ▼
+┌─────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐
+│OpenSearch│  │New Relic │  │ Datadog  │  │  Dynatrace │  ...
+│(always) │  │(toggle)  │  │(toggle)  │  │  (toggle)  │
+└────┬────┘  └──────────┘  └──────────┘  └────────────┘
+     │
+     ├──────────────────────┐
+     ▼                      ▼
+┌──────────┐         ┌────────────┐
+│ Grafana  │◄────────│ Prometheus │
+│  :3000   │         │  (scraper) │
+│7 dashbds │         │            │
+└──────────┘         └─────┬──────┘
+                           │
+                    scrapes :8888
+
+┌───────────────────────────────────────┐
+│         Control Plane  :8090          │
+│                                       │
+│  • Toggle consumers on/off            │
+│  • Enter and store credentials        │
+│  • Live pipeline diagram              │
+│  • Triggers OTel Collector restart    │
+└───────────────────────────────────────┘
+```
+
+> 📷 **SCREENSHOT:** Architectural diagram (see Gemini-generated diagram)
+
+### Key Design Principles
+
+| Principle | Detail |
+|---|---|
+| **Single ingestion point** | All OTLP sources send to one endpoint. No per-consumer SDK changes required. |
+| **Fan-out at the collector** | OTel Collector handles all signal routing. Adding a consumer is a config change, not a code change. |
+| **OpenSearch always on** | All telemetry is always stored in OpenSearch. Consumers are additive — disabling one does not affect others. |
+| **Config-driven** | `consumers.json` is the single source of truth. It is ConfigMap-portable for future Kubernetes deployments. |
+| **No agent installation** | Sources only need OTLP configured. No Boomi-specific SDK or agent is required on the source side. |
+
+### Container Summary
+
+| Container | Image | Port | Role |
+|---|---|---|---|
+| `otel-collector` | `otel/opentelemetry-collector-contrib` | 4317, 4318 | OTLP ingestion and fan-out hub |
+| `opensearch` | `opensearchproject/opensearch` | 9200 | Primary telemetry storage |
+| `prometheus` | `prom/prometheus` | — | Scrapes collector pipeline metrics |
+| `grafana` | Custom (plugin pre-installed) | 3000 | Dashboards and visualisation |
+| `control-plane` | Custom (React + Node.js) | 8090 | Consumer management UI |
+
+---
+
 ## 1. Prerequisites
 
 Before beginning, ensure the following are available:
