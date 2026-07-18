@@ -9,75 +9,102 @@
 
 ## Architecture Overview
 
-The OTel Fanout Platform is a Docker Compose-based observability pipeline that receives telemetry from any OTLP-compatible source and fans it out to one or more downstream consumers — all managed through a browser-based Control Plane UI.
+The OTel Fanout Platform is a comprehensive, Docker Compose-based observability pipeline purpose-built for Boomi runtimes and AI agent workloads. It receives all three OpenTelemetry signal types — **logs, metrics, and traces** — from any OTLP-compatible source and fans them out simultaneously to one or more downstream consumers, all managed through a browser-based Control Plane UI with a live pipeline diagram.
+
+The platform requires no SDK changes on the source side, no proprietary agents, and no cloud infrastructure — it runs entirely on a single host.
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        TELEMETRY SOURCES                            │
-│                                                                     │
-│   Boomi Atom / Molecule    Boomi Agent Studio    Copilot Agents     │
-│           │                       │                    │            │
-│           └───────────────────────┴────────────────────┘            │
-│                               OTLP                                  │
-│                          :4317 / :4318                              │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │
-                                ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                       OTel Collector                              │
-│                                                                   │
-│   • Receives all signals (logs, metrics, traces)                  │
-│   • Batches and routes to all enabled consumers                   │
-│   • Exposes pipeline health metrics on :8888                      │
-└────┬──────────────┬──────────────┬──────────────┬────────────────┘
-     │              │              │              │
-     ▼              ▼              ▼              ▼
-┌─────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐
-│OpenSearch│  │New Relic │  │ Datadog  │  │  Dynatrace │  ...
-│(always) │  │(toggle)  │  │(toggle)  │  │  (toggle)  │
-└────┬────┘  └──────────┘  └──────────┘  └────────────┘
-     │
-     ├──────────────────────┐
-     ▼                      ▼
-┌──────────┐         ┌────────────┐
-│ Grafana  │◄────────│ Prometheus │
-│  :3000   │         │  (scraper) │
-│7 dashbds │         │            │
-└──────────┘         └─────┬──────┘
-                           │
-                    scrapes :8888
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          TELEMETRY SOURCES                               │
+│                                                                          │
+│  Boomi Atom/Molecule   Boomi Agent Studio   Copilot Agents   LangChain   │
+│          │                    │                   │               │      │
+│          └────────────────────┴───────────────────┴───────────────┘      │
+│                                  OTLP/gRPC :4317  │  OTLP/HTTP :4318    │
+└──────────────────────────────────────┬───────────────────────────────────┘
+                                       │
+                                       ▼
+              ┌────────────────────────────────────────────┐
+              │             OTel Collector                 │
+              │                                            │
+              │  Receives logs + metrics + traces          │
+              │  Batches and routes to all consumers       │
+              │  Health metrics exposed on :8888           │
+              └──┬──────────┬──────────┬──────────┬───────┘
+                 │          │          │          │
+         ┌───────┘   ┌──────┘  ┌───────┘  ┌──────┘
+         ▼           ▼         ▼          ▼
+   ┌──────────┐ ┌─────────┐ ┌────────┐ ┌──────────┐ ┌──────────┐
+   │OpenSearch│ │New Relic│ │Datadog │ │Dynatrace │ │  Splunk  │
+   │ :9200    │ │(toggle) │ │(toggle)│ │ (toggle) │ │ (toggle) │
+   │always on │ │free tier│ │        │ │          │ │          │
+   └────┬─────┘ └─────────┘ └────────┘ └──────────┘ └──────────┘
+        │          also: Prometheus remote write (metrics only)
+        │
+        ▼
+   ┌──────────────────────────────┐     ┌─────────────────────┐
+   │         Grafana :3000        │◄────│  Prometheus scraper │
+   │                              │     │                     │
+   │  7 pre-built dashboards:     │     │  Scrapes OTel       │
+   │  • Pipeline Health           │     │  Collector :8888    │
+   │  • Logs Overview             │     │  for pipeline       │
+   │  • Traces Overview           │     │  health metrics     │
+   │  • JVM Health                │     └─────────────────────┘
+   │  • Process Execution         │
+   │  • Runtime Status            │
+   │  • (extensible)              │
+   └──────────────────────────────┘
 
-┌───────────────────────────────────────┐
-│         Control Plane  :8090          │
-│                                       │
-│  • Toggle consumers on/off            │
-│  • Enter and store credentials        │
-│  • Live pipeline diagram              │
-│  • Triggers OTel Collector restart    │
-└───────────────────────────────────────┘
+   ┌──────────────────────────────────────────────────────────┐
+   │                  Control Plane  :8090                    │
+   │                                                          │
+   │  • Toggle consumers on/off with credentials             │
+   │  • Live draggable pipeline diagram with health pulses   │
+   │  • Config rendered from template on every change        │
+   │  • Restarts OTel Collector via Docker socket            │
+   │  • consumers.json persisted — survives restarts         │
+   └──────────────────────────────────────────────────────────┘
 ```
 
 > 📷 **SCREENSHOT:** Architectural diagram (see Gemini-generated diagram)
+
+### What Makes This Comprehensive
+
+This platform covers the full observability lifecycle for Boomi and AI agent workloads in a single deployable stack:
+
+| Capability | Detail |
+|---|---|
+| **All three OTel signals** | Logs, metrics, and traces collected and stored simultaneously |
+| **Multi-consumer fan-out** | One ingestion point, up to 6 downstream destinations — toggle without code changes |
+| **Self-hosted + cloud** | OpenSearch on-premises always on; cloud platforms (New Relic, Datadog, Dynatrace) as optional overlays |
+| **Boomi-native telemetry** | JVM heap, GC, process execution counts, queue depth, messaging delivery — all pre-built dashboards |
+| **AI agent ready** | Any OTLP source (LangChain, Copilot, Boomi Agent Studio) auto-integrates with the same pipeline |
+| **Control plane UI** | No YAML editing required to add or change consumers — browser-based with live feedback |
+| **7 Grafana dashboards** | Immediately useful on first run — pipeline health, runtime metrics, trace analysis |
+| **Free cloud tier** | New Relic free tier (100 GB/month) works out of the box — documented end-to-end |
+| **GitOps-ready** | All configuration in version-controlled files; `consumers.json` is Kubernetes ConfigMap-portable |
+| **Documented** | Full technical setup guide with architecture diagrams, screenshot placeholders, and raw telemetry samples |
 
 ### Key Design Principles
 
 | Principle | Detail |
 |---|---|
-| **Single ingestion point** | All OTLP sources send to one endpoint. No per-consumer SDK changes required. |
-| **Fan-out at the collector** | OTel Collector handles all signal routing. Adding a consumer is a config change, not a code change. |
-| **OpenSearch always on** | All telemetry is always stored in OpenSearch. Consumers are additive — disabling one does not affect others. |
-| **Config-driven** | `consumers.json` is the single source of truth. It is ConfigMap-portable for future Kubernetes deployments. |
-| **No agent installation** | Sources only need OTLP configured. No Boomi-specific SDK or agent is required on the source side. |
+| **Single ingestion point** | All OTLP sources send to one endpoint — no per-consumer SDK changes |
+| **Fan-out at the collector** | OTel Collector handles all routing — adding a consumer is a config change, not a code change |
+| **OpenSearch always on** | All telemetry is always stored locally — consumers are additive, disabling one affects nothing else |
+| **Config-driven** | `consumers.json` is the single source of truth — ConfigMap-portable for Kubernetes |
+| **No agent installation** | Sources only need OTLP configured — no proprietary agent or Boomi-specific SDK required |
+| **Store-only storage** | OpenSearch stores exactly what the collector sends — no modification, no enrichment at the storage layer |
 
 ### Container Summary
 
-| Container | Image | Port | Role |
+| Container | Image | Port(s) | Role |
 |---|---|---|---|
 | `otel-collector` | `otel/opentelemetry-collector-contrib` | 4317, 4318 | OTLP ingestion and fan-out hub |
-| `opensearch` | `opensearchproject/opensearch` | 9200 | Primary telemetry storage |
-| `prometheus` | `prom/prometheus` | — | Scrapes collector pipeline metrics |
-| `grafana` | Custom (plugin pre-installed) | 3000 | Dashboards and visualisation |
-| `control-plane` | Custom (React + Node.js) | 8090 | Consumer management UI |
+| `opensearch` | `opensearchproject/opensearch` | 9200 | Primary telemetry storage (always on) |
+| `prometheus` | `prom/prometheus` | — (internal) | Scrapes collector pipeline metrics for Grafana |
+| `grafana` | Custom (OpenSearch plugin pre-installed) | 3000 | 7 pre-built dashboards |
+| `control-plane` | Custom (React + Node.js + nginx) | 8090 | Consumer management UI and pipeline diagram |
 
 ---
 
