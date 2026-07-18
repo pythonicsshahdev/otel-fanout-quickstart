@@ -33,3 +33,11 @@ datasources:
       version: 2.0.0
       database: boomi-traces
     editable: true
+
+  - name: OTel Collector
+    type: prometheus
+    access: proxy
+    url: http://otel-collector:8888
+    jsonData:
+      timeInterval: 15s
+    editable: true
