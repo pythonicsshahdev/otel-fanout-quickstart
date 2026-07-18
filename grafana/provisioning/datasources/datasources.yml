@@ -9,7 +9,8 @@ datasources:
     isDefault: true
     jsonData:
       timeField: ingestion_timestamp
-      version: 2.0.0
+      version: "3.0.0"
+      flavor: opensearch
       logMessageField: message
       logLevelField: severity_number
       database: boomi-logs-*
@@ -22,7 +23,8 @@ datasources:
     url: http://opensearch:9200
     jsonData:
       timeField: timestamp
-      version: 2.0.0
+      version: "3.0.0"
+      flavor: opensearch
       database: boomi-metrics-*
     editable: true
 
@@ -33,7 +35,8 @@ datasources:
     url: http://opensearch:9200
     jsonData:
       timeField: startTime
-      version: 2.0.0
+      version: "3.0.0"
+      flavor: opensearch
       database: ss4o_traces-traces-*
     editable: true
 
@@ -41,7 +44,7 @@ datasources:
     uid: otel-collector-prom
     type: prometheus
     access: proxy
-    url: http://otel-collector:8888
+    url: http://prometheus:9090
     jsonData:
       timeInterval: 15s
     editable: true
