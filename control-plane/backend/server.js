@@ -47,9 +47,7 @@ app.post('/api/consumers', async (req, res) => {
     fs.writeFileSync(CONSUMERS_PATH, JSON.stringify({ consumers }, null, 2));
 
     const yaml = renderConfig(consumers, TEMPLATE_PATH);
-    const tmpPath = CONFIG_OUTPUT_PATH + '.tmp';
-    fs.writeFileSync(tmpPath, yaml);
-    fs.renameSync(tmpPath, CONFIG_OUTPUT_PATH);
+    fs.writeFileSync(CONFIG_OUTPUT_PATH, yaml);
 
     await restartContainer(COLLECTOR_CONTAINER);
     const running = await waitForRunning(COLLECTOR_CONTAINER);

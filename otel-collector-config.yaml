@@ -29,6 +29,10 @@ exporters:
     logs_index: boomi-traces
     sending_queue:
       enabled: true
+  otlp/newrelic:
+    endpoint: https://otlp.nr-data.net:4317
+    headers:
+      api-key: "REDACTED_NR_KEY"
 
 extensions:
   health_check:
@@ -49,12 +53,12 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/logs]
+      exporters: [elasticsearch/logs, otlp/newrelic]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/metrics]
+      exporters: [elasticsearch/metrics, otlp/newrelic]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [opensearch/traces]
+      exporters: [opensearch/traces, otlp/newrelic]
