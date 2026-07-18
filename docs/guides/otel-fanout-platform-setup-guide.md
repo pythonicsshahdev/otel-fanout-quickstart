@@ -446,7 +446,106 @@ This dashboard queries the `boomi-metrics-*` OpenSearch indices and shows:
 
 ---
 
-## 6. Add a New Consumer
+## 6. New Relic — Free Tier Integration
+
+New Relic offers a **permanently free tier** with 100 GB of data ingest per month — no credit card required, no time limit. It is the recommended consumer for teams that want a cloud-hosted observability platform alongside OpenSearch without any upfront cost.
+
+### Why New Relic with the OTel Fanout Platform
+
+| Capability | Detail |
+|---|---|
+| **Free forever** | 100 GB/month ingest, 1 user included, no expiry |
+| **No credit card** | Sign up with an email address only |
+| **OTLP native** | Accepts logs, metrics, and traces directly — no agent or additional config required |
+| **All three signals** | Logs, metrics, and traces are all visible in the New Relic UI immediately after enabling |
+| **AI-powered** | New Relic AI can query and explain your telemetry in natural language |
+
+### Part A: Create a Free New Relic Account
+
+1. Navigate to `https://newrelic.com` and click **Sign up free**
+
+2. Enter your email address and create a password — no credit card required
+
+> 📷 **SCREENSHOT:** New Relic sign-up page
+
+3. Select **US** as your data region (unless you are based in the EU — if your account URL is `one.eu.newrelic.com`, you are on the EU region and must use a different endpoint in Part C)
+
+4. Complete the onboarding — when prompted to select an integration or install an agent, click **Skip** or **I'll do this later**. Your stack is already configured to send data via OTLP — no agent installation is needed
+
+> 📷 **SCREENSHOT:** New Relic onboarding screen showing Skip option
+
+### Part B: Generate a License Key
+
+1. Log in to `one.newrelic.com`
+
+2. Click your account name in the top-right corner and select **API keys**
+
+> 📷 **SCREENSHOT:** New Relic API keys menu
+
+3. Click **Create a key** and set the following:
+
+| Field | Value |
+|---|---|
+| Key type | `Ingest - License` |
+| Name | e.g., `OTel Fanout Platform` |
+
+4. Click **Create a key** and copy the generated key — it will end in `NRAL`
+
+> 📷 **SCREENSHOT:** New Relic API key creation dialog showing Ingest - License type selected
+
+> **ℹ️ Note:** Store this key securely. You will not be able to view it again after leaving this screen, though you can always create a new one.
+
+### Part C: Enable New Relic in the Control Plane
+
+1. Open the Control Plane at `http://localhost:8090`
+
+2. Locate the **New Relic** card in the left panel and toggle it **on**
+
+> 📷 **SCREENSHOT:** New Relic consumer card toggled on with license key field visible
+
+3. Paste your license key into the **License Key** field
+
+4. Click **Save & Apply** and wait ~10 seconds for the collector to restart
+
+> 📷 **SCREENSHOT:** Control Plane showing New Relic node connected in pipeline diagram with green pulse
+
+### Part D: Verify Data in New Relic
+
+Allow 1–2 minutes for the first data to arrive after enabling. Then navigate to:
+
+**Logs:**
+1. In New Relic, go to **Logs** in the left sidebar
+2. You should see Boomi runtime log entries with full attribute context — runtime name, logger class, thread ID, severity
+
+> 📷 **SCREENSHOT:** New Relic Logs UI showing Boomi log entries with attributes panel expanded
+
+**Metrics:**
+1. Go to **Query your data** (top navigation)
+2. Run the following NRQL query:
+
+```sql
+SELECT * FROM Metric WHERE instrumentation.provider = 'opentelemetry' SINCE 30 minutes ago LIMIT 10
+```
+
+> 📷 **SCREENSHOT:** New Relic Query Builder showing Boomi JVM metrics results
+
+3. To view JVM heap over time:
+
+```sql
+SELECT average(jvm.heap.current) FROM Metric WHERE runtime.name IS NOT NULL TIMESERIES SINCE 1 hour ago
+```
+
+**Traces:**
+1. Go to **APM & Services** or **Distributed Tracing** in the left sidebar
+2. Boomi process executions will appear as services — each process execution is a trace with one or more spans
+
+> 📷 **SCREENSHOT:** New Relic Distributed Tracing showing Boomi process spans
+
+> **ℹ️ Note (EU accounts):** If your New Relic account URL is `one.eu.newrelic.com`, the OTLP endpoint must be changed. Contact your administrator to update the endpoint in the OTel Collector configuration to `https://otlp.eu01.nr-data.net:4317`.
+
+---
+
+## 8. Add a New Consumer
 
 The platform supports the following downstream consumers out of the box. All are configured through the Control Plane UI at `http://localhost:8090`.
 
@@ -481,7 +580,7 @@ The platform supports the following downstream consumers out of the box. All are
 
 ---
 
-## 7. Troubleshooting
+## 9. Troubleshooting
 
 ### Collector shows red in the Control Plane
 
