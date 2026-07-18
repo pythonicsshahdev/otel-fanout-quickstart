@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: OpenSearch Logs
+    uid: opensearch-logs
     type: grafana-opensearch-datasource
     access: proxy
     url: http://opensearch:9200
@@ -9,32 +10,35 @@ datasources:
     jsonData:
       timeField: ingestion_timestamp
       version: 2.0.0
-      logMessageField: body
-      logLevelField: severity_text
-      database: boomi-logs
+      logMessageField: message
+      logLevelField: severity_number
+      database: boomi-logs-*
     editable: true
 
   - name: OpenSearch Metrics
+    uid: opensearch-metrics
     type: grafana-opensearch-datasource
     access: proxy
     url: http://opensearch:9200
     jsonData:
-      timeField: ingestion_timestamp
+      timeField: timestamp
       version: 2.0.0
-      database: boomi-metrics
+      database: boomi-metrics-*
     editable: true
 
   - name: OpenSearch Traces
+    uid: opensearch-traces
     type: grafana-opensearch-datasource
     access: proxy
     url: http://opensearch:9200
     jsonData:
-      timeField: ingestion_timestamp
+      timeField: startTime
       version: 2.0.0
-      database: boomi-traces
+      database: ss4o_traces-traces-*
     editable: true
 
   - name: OTel Collector
+    uid: otel-collector-prom
     type: prometheus
     access: proxy
     url: http://otel-collector:8888

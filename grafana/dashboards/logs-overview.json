@@ -1,0 +1,220 @@
+{
+  "title": "Logs Overview",
+  "uid": "logs-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "logs"],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Logs",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Errors",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:>=17",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Warnings",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:[13 TO 16]",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Info",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:[9 TO 12]",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Log Volume by Severity",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:>=17",
+          "alias": "Error",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "ingestion_timestamp"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:[13 TO 16]",
+          "alias": "Warn",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "ingestion_timestamp"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:[9 TO 12]",
+          "alias": "Info",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "ingestion_timestamp"
+        },
+        {
+          "refId": "D",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:[5 TO 8]",
+          "alias": "Debug",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [
+        { "matcher": { "id": "byName", "options": "Error" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+        { "matcher": { "id": "byName", "options": "Warn" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+        { "matcher": { "id": "byName", "options": "Info" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+        { "matcher": { "id": "byName", "options": "Debug" }, "properties": [{ "id": "color", "value": { "fixedColor": "gray", "mode": "fixed" } }] }
+      ] },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "piechart",
+      "title": "Severity Distribution",
+      "id": 6,
+      "gridPos": { "x": 0, "y": 12, "w": 8, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "severity_number", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "5" } }],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "pieType": "pie", "tooltip": { "mode": "single" } },
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Top Sources (Log Volume)",
+      "id": 7,
+      "gridPos": { "x": 8, "y": 12, "w": 16, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "resources.service.name.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "5" } },
+            { "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "logs",
+      "title": "Log Stream",
+      "id": 8,
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 12 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "",
+          "metrics": [{ "id": "1", "type": "logs", "settings": { "limit": "500" } }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "showTime": true,
+        "showLabels": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      }
+    }
+  ]
+}
