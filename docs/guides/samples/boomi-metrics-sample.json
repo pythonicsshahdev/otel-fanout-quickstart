@@ -1,0 +1,93 @@
+[
+  {
+    "name": "jvm.heap.current",
+    "kind": "absolute",
+    "timestamp": "2026-07-17T10:40:10.059726Z",
+    "gauge": {
+      "value": 69819920.0
+    },
+    "tags": {
+      "account.id": "boomi_shah_abdullah-HNCZAC",
+      "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+      "resource.service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "resource.telemetry.sdk.language": "java",
+      "resource.telemetry.sdk.name": "opentelemetry",
+      "resource.telemetry.sdk.version": "1.47.0",
+      "source": "Boomi"
+    }
+  },
+  {
+    "name": "jvm.heap.max",
+    "kind": "absolute",
+    "timestamp": "2026-07-17T10:40:10.059726Z",
+    "gauge": {
+      "value": 536870912.0
+    },
+    "tags": {
+      "account.id": "boomi_shah_abdullah-HNCZAC",
+      "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+      "resource.service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "resource.telemetry.sdk.language": "java",
+      "resource.telemetry.sdk.name": "opentelemetry",
+      "resource.telemetry.sdk.version": "1.47.0",
+      "source": "Boomi"
+    }
+  },
+  {
+    "name": "jvm.threads.active",
+    "kind": "absolute",
+    "timestamp": "2026-07-17T10:40:10.059726Z",
+    "gauge": {
+      "value": 142.0
+    },
+    "tags": {
+      "account.id": "boomi_shah_abdullah-HNCZAC",
+      "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+      "resource.service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "resource.telemetry.sdk.language": "java",
+      "resource.telemetry.sdk.name": "opentelemetry",
+      "resource.telemetry.sdk.version": "1.47.0",
+      "source": "Boomi"
+    }
+  },
+  {
+    "name": "execution.runningExecutionCount",
+    "kind": "absolute",
+    "timestamp": "2026-07-17T10:40:10.059726Z",
+    "gauge": {
+      "value": 0.0
+    },
+    "tags": {
+      "account.id": "boomi_shah_abdullah-HNCZAC",
+      "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+      "resource.service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "resource.telemetry.sdk.language": "java",
+      "resource.telemetry.sdk.name": "opentelemetry",
+      "resource.telemetry.sdk.version": "1.47.0",
+      "source": "Boomi"
+    }
+  },
+  {
+    "name": "jvm.gc.time",
+    "kind": "absolute",
+    "timestamp": "2026-07-17T10:40:10.059726Z",
+    "gauge": {
+      "value": 1502.0
+    },
+    "tags": {
+      "account.id": "boomi_shah_abdullah-HNCZAC",
+      "gc.name": "G1 Young Generation",
+      "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+      "resource.service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+      "resource.telemetry.sdk.language": "java",
+      "resource.telemetry.sdk.name": "opentelemetry",
+      "resource.telemetry.sdk.version": "1.47.0",
+      "source": "Boomi"
+    }
+  }
+]

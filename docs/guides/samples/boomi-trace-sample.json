@@ -1,0 +1,47 @@
+{
+  "traceId": "00b2843a0c5a588bb8deac5ab3ab7950",
+  "spanId": "e0b0f16da8f518fe",
+  "parentSpanId": "b9981df91acfa199",
+  "name": "Starting process execution.",
+  "kind": "Internal",
+  "startTime": "2026-06-29T16:40:26.748693Z",
+  "endTime": "2026-06-29T16:40:30.356216854Z",
+  "status": {
+    "code": "Ok",
+    "message": ""
+  },
+  "resource": {
+    "service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+    "telemetry.sdk.language": "java",
+    "telemetry.sdk.name": "opentelemetry",
+    "telemetry.sdk.version": "1.47.0"
+  },
+  "instrumentationScope": {
+    "name": "boomi_shah_abdullah-HNCZAC",
+    "version": "",
+    "schemaUrl": ""
+  },
+  "attributes": {
+    "account.id": "boomi_shah_abdullah-HNCZAC",
+    "process.id": "2a5160d8-1c93-4bf1-9e11-8dcf188647e8",
+    "process.name": "DH - Provider to Epic",
+    "execution.id": "execution-59576fb0-ace5-41aa-a767-b0b312b48a71-2026.06.29",
+    "execution.invocationType": "manual",
+    "execution.mode": "general",
+    "execution.success": "true",
+    "execution.topLevelProcessId": "2a5160d8-1c93-4bf1-9e11-8dcf188647e8",
+    "execution.topLevelProcessName": "DH - Provider to Epic",
+    "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+    "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+    "source": "Boomi",
+    "data_stream": {
+      "type": "span",
+      "dataset": "traces",
+      "namespace": "boomi"
+    }
+  },
+  "droppedAttributesCount": 0,
+  "droppedEventsCount": 0,
+  "droppedLinksCount": 0,
+  "traceState": ""
+}

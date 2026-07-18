@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-17T10:40:00.148561Z",
+  "ingestion_timestamp": "2026-07-17T10:40:00.548147701Z",
+  "observed_timestamp": "2026-07-17T10:40:00.148561Z",
+  "severity_number": 9,
+  "message": "PURGE: Atom purge all data beginning (1 threads)",
+  "source_type": "opentelemetry",
+  "data_source": "boomi",
+  "dropped_attributes_count": 0,
+  "resources": {
+    "service.name": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+    "telemetry.sdk.language": "java",
+    "telemetry.sdk.name": "opentelemetry",
+    "telemetry.sdk.version": "1.47.0"
+  },
+  "scope": {
+    "name": "8ad9cbe3-a691-434f-a105-e2619dab47df"
+  },
+  "attributes": {
+    "account.id": "boomi_shah_abdullah-HNCZAC",
+    "log.type": "runtime",
+    "logger.level": "INFO",
+    "logger.name": "com.boomi.purge",
+    "source.class": "com.boomi.purge.PurgeManager",
+    "source.method": "run",
+    "runtime.id": "8ad9cbe3-a691-434f-a105-e2619dab47df",
+    "runtime.name": "SHAH_MACOS_LOCAL_DOCKER_RUNTIME_03292026",
+    "source": "Boomi",
+    "thread.id": 1783
+  }
+}
