@@ -36,21 +36,6 @@ services:
         condition: service_healthy
     restart: on-failure
 
-  vector:
-    image: timberio/vector:latest-alpine
-    container_name: vector
-    command: ["--config", "/etc/vector/vector.toml"]
-    volumes:
-      - ./vector.toml:/etc/vector/vector.toml
-    ports:
-      - "4319:4317"
-      - "4320:4318"
-    networks:
-      - boomi-net
-    depends_on:
-      - otel-collector
-    restart: on-failure
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
