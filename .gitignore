@@ -4,3 +4,4 @@ npm-debug.log*
 *.bak
 control-plane/frontend/dist/
 .superpowers/
+control-plane/ssl/

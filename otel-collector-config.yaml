@@ -13,26 +13,34 @@ processors:
 
 exporters:
   elasticsearch/logs:
-    endpoints: ["http://opensearch:9200"]
+    endpoints: ["https://opensearch:9200"]
     logs_index: boomi-logs
+    user: "${OPENSEARCH_USER}"
+    password: "${OPENSEARCH_PASSWORD}"
+    tls:
+      insecure_skip_verify: true
     sending_queue:
       enabled: true
   elasticsearch/metrics:
-    endpoints: ["http://opensearch:9200"]
+    endpoints: ["https://opensearch:9200"]
     logs_index: boomi-metrics
+    user: "${OPENSEARCH_USER}"
+    password: "${OPENSEARCH_PASSWORD}"
+    tls:
+      insecure_skip_verify: true
     sending_queue:
       enabled: true
   opensearch/traces:
     http:
-      endpoint: "http://opensearch:9200"
+      endpoint: "https://opensearch:9200"
       timeout: 30s
+      headers:
+        Authorization: "Basic ${OPENSEARCH_AUTH_HEADER}"
+      tls:
+        insecure_skip_verify: true
     logs_index: boomi-traces
     sending_queue:
       enabled: true
-  otlp/newrelic:
-    endpoint: https://otlp.nr-data.net:4317
-    headers:
-      api-key: "REDACTED_NR_KEY"
 
 extensions:
   health_check:
@@ -53,12 +61,12 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/logs, otlp/newrelic]
+      exporters: [elasticsearch/logs]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/metrics, otlp/newrelic]
+      exporters: [elasticsearch/metrics]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [opensearch/traces, otlp/newrelic]
+      exporters: [opensearch/traces]

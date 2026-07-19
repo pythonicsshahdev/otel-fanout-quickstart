@@ -1,11 +1,10 @@
-version: "3"
 services:
   opensearch:
     image: opensearchproject/opensearch:latest
     container_name: opensearch
     environment:
       - discovery.type=single-node
-      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
@@ -15,7 +14,7 @@ services:
     volumes:
       - opensearch-data:/usr/share/opensearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f -u 'admin:${OPENSEARCH_PASSWORD}' -k https://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -24,6 +23,10 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    environment:
+      - OPENSEARCH_USER=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER}
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
@@ -56,8 +59,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_SECURITY_ADMIN_USER=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -80,11 +84,15 @@ services:
       - CONFIG_OUTPUT_PATH=/config/otel-collector-config.yaml
       - COLLECTOR_CONTAINER=otel-collector
       - DEPLOY_TARGET=compose
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER}
     volumes:
       - consumers-data:/data
       - ./otel-collector-config.hbs:/templates/otel-collector-config.hbs:ro
       - ./otel-collector-config.yaml:/config/otel-collector-config.yaml
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./control-plane/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./control-plane/ssl:/etc/nginx/ssl:ro
     networks:
       - boomi-net
     depends_on:

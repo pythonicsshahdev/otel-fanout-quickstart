@@ -12,22 +12,34 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  elasticsearch/logs:
+  elasticsearch/logs:                                                                                                                                                         
+    endpoints: ["{{consumers.opensearch.endpoint}}"]                                                                                                                        
+    logs_index: boomi-logs                          
+    user: "{{consumers.opensearch.username}}"
+    password: "{{consumers.opensearch.password}}"
+    tls:                                                                                                                                                                      
+      insecure_skip_verify: true
+    sending_queue:                                                                                                                                                            
+      enabled: true                                                                                                                                                         
+  elasticsearch/metrics:                                                                                                                                                      
     endpoints: ["{{consumers.opensearch.endpoint}}"]
-    logs_index: boomi-logs
-    sending_queue:
-      enabled: true
-  elasticsearch/metrics:
-    endpoints: ["{{consumers.opensearch.endpoint}}"]
-    logs_index: boomi-metrics
-    sending_queue:
-      enabled: true
-  opensearch/traces:
-    http:
+    logs_index: boomi-metrics                                                                                                                                                 
+    user: "{{consumers.opensearch.username}}"                                                                                                                               
+    password: "{{consumers.opensearch.password}}"
+    tls:                                         
+      insecure_skip_verify: true                                                                                                                                              
+    sending_queue:              
+      enabled: true                                                                                                                                                           
+  opensearch/traces:                                                                                                                                                        
+    http:           
       endpoint: "{{consumers.opensearch.endpoint}}"
-      timeout: 30s
+      timeout: 30s                                 
+      headers:                                                                                                                                                                
+        Authorization: "Basic {{consumers.opensearch.auth_header}}"
+      tls:                                                                                                                                                                    
+        insecure_skip_verify: true                                                                                                                                          
     logs_index: boomi-traces
-    sending_queue:
+    sending_queue:                                                                                                                                                            
       enabled: true
 {{#if consumers.splunk.enabled}}
   splunk_hec/splunk:
