@@ -1,7 +1,9 @@
-version: "3"
 # Pull-and-run compose file — uses pre-built Docker Hub images.
 # No source code required. Run with:
 #   docker compose -f docker-compose.hub.yml up -d
+#
+# Credentials default to "changeme" if not set. Override via env vars or a .env file:
+#   OPENSEARCH_PASSWORD=mypassword GRAFANA_PASSWORD=mypassword docker compose -f docker-compose.hub.yml up -d
 
 services:
   opensearch:
@@ -9,7 +11,7 @@ services:
     container_name: opensearch
     environment:
       - discovery.type=single-node
-      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD:-changeme}
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
@@ -19,7 +21,7 @@ services:
     volumes:
       - opensearch-data:/usr/share/opensearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f -u 'admin:${OPENSEARCH_PASSWORD:-changeme}' -k https://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -28,6 +30,10 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    environment:
+      - OPENSEARCH_USER=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD:-changeme}
+      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER:-YWRtaW46Y2hhbmdlbWU=}
     volumes:
       - otel-config:/etc/otelcol-contrib
     ports:
@@ -58,8 +64,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-changeme}
       - GF_SECURITY_ADMIN_USER=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD:-changeme}
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
@@ -79,6 +86,10 @@ services:
       - CONFIG_OUTPUT_PATH=/config/otel-collector-config.yaml
       - COLLECTOR_CONTAINER=otel-collector
       - DEPLOY_TARGET=compose
+      - CONTROL_PLANE_USER=${CONTROL_PLANE_USER:-admin}
+      - CONTROL_PLANE_PASSWORD=${CONTROL_PLANE_PASSWORD:-changeme}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD:-changeme}
+      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER:-YWRtaW46Y2hhbmdlbWU=}
     volumes:
       - consumers-data:/data
       - otel-config:/config

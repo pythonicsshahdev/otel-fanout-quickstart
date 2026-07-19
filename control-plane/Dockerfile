@@ -11,7 +11,7 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM nginx:alpine
-RUN apk add --no-cache nodejs
+RUN apk add --no-cache nodejs openssl
 
 COPY --from=backend-deps /app/node_modules /app/backend/node_modules
 COPY backend/ /app/backend/

@@ -84,6 +84,8 @@ services:
       - CONFIG_OUTPUT_PATH=/config/otel-collector-config.yaml
       - COLLECTOR_CONTAINER=otel-collector
       - DEPLOY_TARGET=compose
+      - CONTROL_PLANE_USER=admin
+      - CONTROL_PLANE_PASSWORD=${CONTROL_PLANE_PASSWORD}
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
       - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER}
     volumes:
@@ -91,8 +93,6 @@ services:
       - ./otel-collector-config.hbs:/templates/otel-collector-config.hbs:ro
       - ./otel-collector-config.yaml:/config/otel-collector-config.yaml
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./control-plane/.htpasswd:/etc/nginx/.htpasswd:ro
-      - ./control-plane/ssl:/etc/nginx/ssl:ro
     networks:
       - boomi-net
     depends_on:
