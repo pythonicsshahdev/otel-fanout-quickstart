@@ -64,7 +64,7 @@
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
           "query": "",
-          "metrics": [{ "id": "1", "type": "cardinality", "field": "attributes.process.id" }],
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "attributes.process.name.keyword" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "startTime"
         }
