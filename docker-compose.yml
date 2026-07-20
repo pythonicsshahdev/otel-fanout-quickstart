@@ -4,7 +4,7 @@ services:
     container_name: opensearch
     environment:
       - discovery.type=single-node
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
+      - DISABLE_SECURITY_PLUGIN=true
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
@@ -14,24 +14,33 @@ services:
     volumes:
       - opensearch-data:/usr/share/opensearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f -u 'admin:${OPENSEARCH_PASSWORD}' -k https://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  vector:
+    image: pythonicshahdev/boomi-vector:latest
+    container_name: vector
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - boomi-net
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    restart: unless-stopped
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
-    environment:
-      - OPENSEARCH_USER=admin
-      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
-      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER}
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4319:4317"
+      - "4320:4318"
     networks:
       - boomi-net
     depends_on:
@@ -61,7 +70,6 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_SECURITY_ADMIN_USER=admin
-      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -86,8 +94,6 @@ services:
       - DEPLOY_TARGET=compose
       - CONTROL_PLANE_USER=admin
       - CONTROL_PLANE_PASSWORD=${CONTROL_PLANE_PASSWORD}
-      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
-      - OPENSEARCH_AUTH_HEADER=${OPENSEARCH_AUTH_HEADER}
     volumes:
       - consumers-data:/data
       - ./otel-collector-config.hbs:/templates/otel-collector-config.hbs:ro

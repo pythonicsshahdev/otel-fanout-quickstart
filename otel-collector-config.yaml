@@ -12,32 +12,10 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  elasticsearch/logs:
-    endpoints: ["https://opensearch:9200"]
-    logs_index: boomi-logs
-    user: "${OPENSEARCH_USER}"
-    password: "${OPENSEARCH_PASSWORD}"
-    tls:
-      insecure_skip_verify: true
-    sending_queue:
-      enabled: true
-  elasticsearch/metrics:
-    endpoints: ["https://opensearch:9200"]
-    logs_index: boomi-metrics
-    user: "${OPENSEARCH_USER}"
-    password: "${OPENSEARCH_PASSWORD}"
-    tls:
-      insecure_skip_verify: true
-    sending_queue:
-      enabled: true
   opensearch/traces:
     http:
-      endpoint: "https://opensearch:9200"
+      endpoint: "http://opensearch:9200"
       timeout: 30s
-      headers:
-        Authorization: "Basic ${OPENSEARCH_AUTH_HEADER}"
-      tls:
-        insecure_skip_verify: true
     logs_index: boomi-traces
     sending_queue:
       enabled: true
@@ -58,14 +36,6 @@ service:
                 host: "0.0.0.0"
                 port: 8888
   pipelines:
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [elasticsearch/logs]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [elasticsearch/metrics]
     traces:
       receivers: [otlp]
       processors: [batch]

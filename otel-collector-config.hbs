@@ -12,34 +12,16 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  elasticsearch/logs:                                                                                                                                                         
-    endpoints: ["{{consumers.opensearch.endpoint}}"]                                                                                                                        
-    logs_index: boomi-logs                          
-    user: "{{consumers.opensearch.username}}"
-    password: "{{consumers.opensearch.password}}"
-    tls:                                                                                                                                                                      
-      insecure_skip_verify: true
-    sending_queue:                                                                                                                                                            
-      enabled: true                                                                                                                                                         
-  elasticsearch/metrics:                                                                                                                                                      
-    endpoints: ["{{consumers.opensearch.endpoint}}"]
-    logs_index: boomi-metrics                                                                                                                                                 
-    user: "{{consumers.opensearch.username}}"                                                                                                                               
-    password: "{{consumers.opensearch.password}}"
-    tls:                                         
-      insecure_skip_verify: true                                                                                                                                              
-    sending_queue:              
-      enabled: true                                                                                                                                                           
-  opensearch/traces:                                                                                                                                                        
-    http:           
+  otlp/vector:
+    endpoint: vector:4320
+    tls:
+      insecure: true
+  opensearch/traces:
+    http:
       endpoint: "{{consumers.opensearch.endpoint}}"
-      timeout: 30s                                 
-      headers:                                                                                                                                                                
-        Authorization: "Basic {{consumers.opensearch.auth_header}}"
-      tls:                                                                                                                                                                    
-        insecure_skip_verify: true                                                                                                                                          
+      timeout: 30s
     logs_index: boomi-traces
-    sending_queue:                                                                                                                                                            
+    sending_queue:
       enabled: true
 {{#if consumers.splunk.enabled}}
   splunk_hec/splunk:
@@ -90,11 +72,11 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/logs{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
+      exporters: [otlp/vector{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/metrics{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
+      exporters: [otlp/vector{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
     traces:
       receivers: [otlp]
       processors: [batch]

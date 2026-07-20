@@ -1,6 +1,6 @@
 {
   "consumers": {
-    "opensearch": { "enabled": true, "endpoint": "https://opensearch:9200", "username": "admin", "password": "${OPENSEARCH_PASSWORD}", "auth_header": "${OPENSEARCH_AUTH_HEADER}" },
+    "opensearch": { "enabled": true, "endpoint": "http://opensearch:9200" },
     "splunk": { "enabled": false, "endpoint": "", "token": "" },
     "newrelic": { "enabled": false, "license_key": "" },
     "datadog": { "enabled": false, "api_key": "", "site": "datadoghq.com" },

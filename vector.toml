@@ -1,28 +1,23 @@
-[sources.boomi_otel]
+[sources.otel_input]
 type = "opentelemetry"
 
-[sources.boomi_otel.grpc]
-address = "0.0.0.0:4317"
+[sources.otel_input.grpc]
+address = "0.0.0.0:4320"
 
-[sources.boomi_otel.http]
-address = "0.0.0.0:4318"
+[sources.otel_input.http]
+address = "0.0.0.0:4321"
 
 [transforms.logs_transformed]
 type = "remap"
-inputs = ["boomi_otel.logs"]
+inputs = ["otel_input.logs"]
 source = '''
 .ingestion_timestamp = now()
 .data_source = "boomi"
-
-if exists(.attributes) {
-  .attributes_raw = encode_json(.attributes)
-  del(.attributes)
-}
 '''
 
 [transforms.metrics_transformed]
 type = "remap"
-inputs = ["boomi_otel.metrics"]
+inputs = ["otel_input.metrics"]
 source = '''
 .ingestion_timestamp = now()
 .data_source = "boomi"

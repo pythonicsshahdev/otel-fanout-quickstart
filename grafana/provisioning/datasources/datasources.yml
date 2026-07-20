@@ -5,12 +5,8 @@ datasources:
     uid: opensearch-logs
     type: grafana-opensearch-datasource
     access: proxy
-    url: https://opensearch:9200
+    url: http://opensearch:9200
     isDefault: true
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "${OPENSEARCH_PASSWORD}"
     jsonData:
       timeField: ingestion_timestamp
       version: "3.0.0"
@@ -18,41 +14,30 @@ datasources:
       logMessageField: message
       logLevelField: severity_number
       database: boomi-logs-*
-      tlsSkipVerify: true
     editable: true
 
   - name: OpenSearch Metrics
     uid: opensearch-metrics
     type: grafana-opensearch-datasource
     access: proxy
-    url: https://opensearch:9200
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "${OPENSEARCH_PASSWORD}"
+    url: http://opensearch:9200
     jsonData:
       timeField: timestamp
       version: "3.0.0"
       flavor: opensearch
       database: boomi-metrics-*
-      tlsSkipVerify: true
     editable: true
 
   - name: OpenSearch Traces
     uid: opensearch-traces
     type: grafana-opensearch-datasource
     access: proxy
-    url: https://opensearch:9200
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "${OPENSEARCH_PASSWORD}"
+    url: http://opensearch:9200
     jsonData:
       timeField: startTime
       version: "3.0.0"
       flavor: opensearch
       database: ss4o_traces-traces-*
-      tlsSkipVerify: true
     editable: true
 
   - name: OTel Collector
