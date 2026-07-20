@@ -12,10 +12,6 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  otlp/vector:
-    endpoint: vector:4320
-    tls:
-      insecure: true
   opensearch/traces:
     http:
       endpoint: "http://opensearch:9200"
@@ -40,14 +36,6 @@ service:
                 host: "0.0.0.0"
                 port: 8888
   pipelines:
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp/vector]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp/vector]
     traces:
       receivers: [otlp]
       processors: [batch]
