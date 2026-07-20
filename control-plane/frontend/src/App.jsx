@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import ConsumerCard from './components/ConsumerCard';
 import PipelineDiagram from './components/PipelineDiagram';
 import SourcesList from './components/SourcesList';
+import RetentionSettings from './components/RetentionSettings';
 import { getConsumers, saveConsumers, getStatus } from './api';
 
 const TAB_STYLE = (active) => ({
@@ -60,6 +61,7 @@ export default function App() {
         <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
           <button style={TAB_STYLE(tab === 'consumers')} onClick={() => setTab('consumers')}>Consumers</button>
           <button style={TAB_STYLE(tab === 'sources')} onClick={() => setTab('sources')}>Sources</button>
+          <button style={TAB_STYLE(tab === 'retention')} onClick={() => setTab('retention')}>Retention</button>
         </div>
 
         {tab === 'consumers' && (
@@ -99,6 +101,7 @@ export default function App() {
         )}
 
         {tab === 'sources' && <SourcesList />}
+        {tab === 'retention' && <RetentionSettings />}
       </div>
 
       <div style={{ flex: 1 }}>

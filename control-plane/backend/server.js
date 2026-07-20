@@ -63,6 +63,42 @@ async function discoverSources() {
 }
 
 setInterval(discoverSources, 30000);
+
+async function getRetentionDays() {
+  try {
+    const res = await fetch(`${OPENSEARCH_URL}/_plugins/_ism/policies/boomi-retention`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const transition = data?.policy?.states?.[0]?.transitions?.[0]?.conditions?.min_index_age;
+    return transition ? parseInt(transition) : null;
+  } catch { return null; }
+}
+
+async function setRetentionDays(days) {
+  const policy = {
+    policy: {
+      description: `Delete Boomi telemetry indices after ${days} days`,
+      default_state: 'live',
+      states: [
+        { name: 'live', actions: [], transitions: [{ state_name: 'delete', conditions: { min_index_age: `${days}d` } }] },
+        { name: 'delete', actions: [{ delete: {} }], transitions: [] }
+      ],
+      ism_template: [{ index_patterns: ['boomi-logs-*', 'boomi-metrics-*', 'ss4o_traces-*'], priority: 100 }]
+    }
+  };
+  const seqRes = await fetch(`${OPENSEARCH_URL}/_plugins/_ism/policies/boomi-retention`);
+  let url = `${OPENSEARCH_URL}/_plugins/_ism/policies/boomi-retention`;
+  let method = 'PUT';
+  if (seqRes.ok) {
+    const existing = await seqRes.json();
+    const seq = existing._seq_no;
+    const primary = existing._primary_term;
+    url += `?if_seq_no=${seq}&if_primary_term=${primary}`;
+    method = 'PUT';
+  }
+  const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(policy) });
+  return res.ok;
+}
 discoverSources();
 
 app.get('/api/consumers', (req, res) => {
@@ -141,6 +177,18 @@ app.delete('/api/sources/:name', (req, res) => {
   delete data.sources[name];
   writeSources(data);
   res.json({ ok: true });
+});
+
+app.get('/api/retention', async (req, res) => {
+  const days = await getRetentionDays();
+  res.json({ days });
+});
+
+app.put('/api/retention', async (req, res) => {
+  const { days } = req.body;
+  if (!days || isNaN(days) || days < 1) return res.status(400).json({ error: 'Invalid days value' });
+  const ok = await setRetentionDays(parseInt(days));
+  res.json({ ok });
 });
 
 app.listen(3001, () => console.log('Control plane backend on :3001'));
