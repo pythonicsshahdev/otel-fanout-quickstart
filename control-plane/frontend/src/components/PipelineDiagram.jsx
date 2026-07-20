@@ -91,16 +91,23 @@ function makeNodes(consumers, collectorHealthy, positions) {
   ];
 }
 
+const EDGE = (extra = {}) => ({
+  type: 'smoothstep',
+  markerEnd: { type: 'arrowclosed', color: '#475569' },
+  style: { stroke: '#475569' },
+  ...extra
+});
+
 function makeEdges(consumers, collectorHealthy) {
   const enabled = Object.entries(consumers).filter(([k, c]) => c.enabled && k !== 'opensearch');
   return [
-    { id: 'b-v', source: 'boomi', target: 'vector', label: 'Logs/Metrics\nOTLP :4317/:4318', animated: true },
-    { id: 'b-o', source: 'boomi', target: 'otel', label: 'Traces\nOTLP :4319/:4320', animated: true },
-    { id: 'v-os', source: 'vector', target: 'c_opensearch', label: 'Logs/Metrics', animated: true },
-    { id: 'o-os', source: 'otel', target: 'c_opensearch', label: 'Traces', animated: collectorHealthy },
-    ...enabled.map(([name]) => ({
-      id: `o-${name}`, source: 'otel', target: `c_${name}`, animated: collectorHealthy
-    }))
+    EDGE({ id: 'b-v', source: 'boomi', target: 'vector', label: 'Logs/Metrics :4317/:4318', animated: true, style: { stroke: '#3b82f6' }, markerEnd: { type: 'arrowclosed', color: '#3b82f6' } }),
+    EDGE({ id: 'b-o', source: 'boomi', target: 'otel', label: 'Traces :4319/:4320', animated: true, style: { stroke: '#3b82f6' }, markerEnd: { type: 'arrowclosed', color: '#3b82f6' } }),
+    EDGE({ id: 'v-os', source: 'vector', target: 'c_opensearch', label: 'Logs/Metrics', animated: true, style: { stroke: '#22c55e' }, markerEnd: { type: 'arrowclosed', color: '#22c55e' } }),
+    EDGE({ id: 'o-os', source: 'otel', target: 'c_opensearch', label: 'Traces', animated: collectorHealthy, style: { stroke: collectorHealthy ? '#22c55e' : '#475569' }, markerEnd: { type: 'arrowclosed', color: collectorHealthy ? '#22c55e' : '#475569' } }),
+    ...enabled.map(([name]) =>
+      EDGE({ id: `o-${name}`, source: 'otel', target: `c_${name}`, animated: collectorHealthy })
+    )
   ];
 }
 

@@ -94,6 +94,8 @@ services:
       - DEPLOY_TARGET=compose
       - CONTROL_PLANE_USER=admin
       - CONTROL_PLANE_PASSWORD=${CONTROL_PLANE_PASSWORD}
+      - OPENSEARCH_URL=http://opensearch:9200
+      - SOURCES_PATH=/data/sources.json
     volumes:
       - consumers-data:/data
       - ./otel-collector-config.hbs:/templates/otel-collector-config.hbs:ro
