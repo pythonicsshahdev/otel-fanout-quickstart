@@ -37,7 +37,7 @@ datasources:
       timeField: startTime
       version: "3.0.0"
       flavor: opensearch
-      database: ss4o_traces-traces-*
+      database: ss4o_traces-*
     editable: true
 
   - name: OTel Collector

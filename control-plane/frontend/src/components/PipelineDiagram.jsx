@@ -19,7 +19,6 @@ const BOX = {
 };
 
 const CONSUMER_LABELS = {
-  opensearch: 'OpenSearch\n:9200',
   splunk: 'Splunk HEC',
   newrelic: 'New Relic',
   datadog: 'Datadog',
@@ -38,28 +37,51 @@ function savePositions(pos) {
 
 function makeNodes(consumers, collectorHealthy, positions) {
   const p = (id, def) => positions[id] || def;
-  const enabled = Object.entries(consumers).filter(([, c]) => c.enabled);
+  // Exclude opensearch — it's always present via Vector and OTel, not a toggle
+  const enabled = Object.entries(consumers).filter(([k, c]) => c.enabled && k !== 'opensearch');
 
   return [
     {
       id: 'boomi',
-      position: p('boomi', { x: 0, y: 120 }),
+      position: p('boomi', { x: 0, y: 160 }),
+      sourcePosition: 'right',
+      targetPosition: 'left',
       data: { label: 'Boomi Atom' },
       style: { ...BOX, animation: 'pulse-blue 2s ease-in-out infinite' }
     },
     {
+      id: 'vector',
+      position: p('vector', { x: 300, y: 60 }),
+      sourcePosition: 'right',
+      targetPosition: 'left',
+      data: { label: 'Vector\n:4317/:4318\nlogs + metrics' },
+      style: { ...BOX, animation: 'pulse-green 2s ease-in-out infinite' }
+    },
+    {
       id: 'otel',
-      position: p('otel', { x: 280, y: 120 }),
-      data: { label: 'OTel Collector\n:4317/:4318\nall signals' },
+      position: p('otel', { x: 300, y: 260 }),
+      sourcePosition: 'right',
+      targetPosition: 'left',
+      data: { label: 'OTel Collector\n:4319/:4320\ntraces + fanout' },
       style: {
         ...BOX,
         border: `1px solid ${collectorHealthy ? '#22c55e' : '#ef4444'}`,
         animation: collectorHealthy ? 'pulse-green 2s ease-in-out infinite' : 'none'
       }
     },
+    {
+      id: 'c_opensearch',
+      position: p('c_opensearch', { x: 600, y: 160 }),
+      sourcePosition: 'right',
+      targetPosition: 'left',
+      data: { label: 'OpenSearch\n:9200' },
+      style: { ...BOX, animation: 'pulse-green 2s ease-in-out infinite' }
+    },
     ...enabled.map(([name], i) => ({
       id: `c_${name}`,
-      position: p(`c_${name}`, { x: 560, y: i * 90 }),
+      position: p(`c_${name}`, { x: 600, y: 340 + i * 90 }),
+      sourcePosition: 'right',
+      targetPosition: 'left',
       data: { label: CONSUMER_LABELS[name] ?? name },
       style: {
         ...BOX,
@@ -70,9 +92,12 @@ function makeNodes(consumers, collectorHealthy, positions) {
 }
 
 function makeEdges(consumers, collectorHealthy) {
-  const enabled = Object.entries(consumers).filter(([, c]) => c.enabled);
+  const enabled = Object.entries(consumers).filter(([k, c]) => c.enabled && k !== 'opensearch');
   return [
-    { id: 'b-o', source: 'boomi', target: 'otel', label: 'OTLP :4317/:4318', animated: true },
+    { id: 'b-v', source: 'boomi', target: 'vector', label: 'Logs/Metrics\nOTLP :4317/:4318', animated: true },
+    { id: 'b-o', source: 'boomi', target: 'otel', label: 'Traces\nOTLP :4319/:4320', animated: true },
+    { id: 'v-os', source: 'vector', target: 'c_opensearch', label: 'Logs/Metrics', animated: true },
+    { id: 'o-os', source: 'otel', target: 'c_opensearch', label: 'Traces', animated: collectorHealthy },
     ...enabled.map(([name]) => ({
       id: `o-${name}`, source: 'otel', target: `c_${name}`, animated: collectorHealthy
     }))
@@ -83,7 +108,6 @@ export default function PipelineDiagram({ consumers, collectorHealthy }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(makeNodes(consumers, collectorHealthy, loadPositions()));
   const [edges, setEdges] = useEdgesState(makeEdges(consumers, collectorHealthy));
 
-  // Sync consumer/health changes, preserving current drag positions
   useEffect(() => {
     setNodes(current => {
       const currentPos = {};
@@ -93,7 +117,6 @@ export default function PipelineDiagram({ consumers, collectorHealthy }) {
     setEdges(makeEdges(consumers, collectorHealthy));
   }, [consumers, collectorHealthy]);
 
-  // Pass through to ReactFlow for smooth drag, save on drag end
   const handleNodesChange = useCallback((changes) => {
     onNodesChange(changes);
     const finished = changes.filter(c => c.type === 'position' && !c.dragging && c.position);
