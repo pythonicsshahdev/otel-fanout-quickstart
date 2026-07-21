@@ -59,7 +59,7 @@ export default function App() {
         </p>
 
         <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-          <button style={TAB_STYLE(tab === 'consumers')} onClick={() => setTab('consumers')}>Consumers</button>
+          <button style={TAB_STYLE(tab === 'consumers')} onClick={() => setTab('consumers')}>Trace Consumers</button>
           <button style={TAB_STYLE(tab === 'sources')} onClick={() => setTab('sources')}>Sources</button>
           <button style={TAB_STYLE(tab === 'retention')} onClick={() => setTab('retention')}>Retention</button>
         </div>

@@ -62,7 +62,7 @@ function makeNodes(consumers, collectorHealthy, positions) {
       position: p('otel', { x: 300, y: 260 }),
       sourcePosition: 'right',
       targetPosition: 'left',
-      data: { label: 'OTel Collector\n:4319/:4320\ntraces + fanout' },
+      data: { label: 'OTel Collector\n:4319/:4320\ntraces → consumers' },
       style: {
         ...BOX,
         border: `1px solid ${collectorHealthy ? '#22c55e' : '#ef4444'}`,

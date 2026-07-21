@@ -40,7 +40,7 @@ export default function ConsumerCard({ name, config, onChange, alwaysOn }) {
       padding: 16,
       marginBottom: 12
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <strong style={{ fontSize: 15 }}>{LABELS[name] ?? name}</strong>
         {alwaysOn
           ? <span style={{ fontSize: 12, color: '#22c55e' }}>Always On</span>
@@ -55,6 +55,9 @@ export default function ConsumerCard({ name, config, onChange, alwaysOn }) {
             </label>
           )}
       </div>
+      {name !== 'opensearch' && (
+        <div style={{ fontSize: 11, color: '#475569', marginBottom: 10 }}>Receives traces</div>
+      )}
       {(FIELDS[name] ?? []).map(f => (
         <div key={f.key} style={{ marginBottom: 8 }}>
           <label style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{f.label}</label>
