@@ -43,27 +43,3 @@ endpoints = ["http://opensearch:9200"]
 mode = "bulk"
 bulk.index = "boomi-metrics"
 api_version = "v8"
-
-[sinks.newrelic_logs]
-type = "opentelemetry"
-inputs = ["boomi_otlp.logs"]
-
-[sinks.newrelic_logs.protocol]
-type = "http"
-uri = "https://otlp.nr-data.net/v1/logs"
-encoding.codec = "json"
-
-[sinks.newrelic_logs.protocol.request.headers]
-api-key = "REDACTED_NR_KEY"
-
-[sinks.newrelic_metrics]
-type = "opentelemetry"
-inputs = ["boomi_otlp.metrics"]
-
-[sinks.newrelic_metrics.protocol]
-type = "http"
-uri = "https://otlp.nr-data.net/v1/metrics"
-encoding.codec = "json"
-
-[sinks.newrelic_metrics.protocol.request.headers]
-api-key = "REDACTED_NR_KEY"
