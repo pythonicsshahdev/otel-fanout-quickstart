@@ -12,6 +12,8 @@ processors:
     send_batch_size: 1024
 
 exporters:
+  debug:
+    verbosity: basic
   opensearch/traces:
     http:
       endpoint: "http://opensearch:9200"
@@ -19,6 +21,10 @@ exporters:
     logs_index: boomi-traces
     sending_queue:
       enabled: true
+  otlp/newrelic:
+    endpoint: https://otlp.nr-data.net:4317
+    headers:
+      api-key: "REDACTED_NR_KEY"
 
 extensions:
   health_check:
@@ -36,7 +42,15 @@ service:
                 host: "0.0.0.0"
                 port: 8888
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlp/newrelic]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlp/newrelic]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [opensearch/traces]
+      exporters: [opensearch/traces, otlp/newrelic]

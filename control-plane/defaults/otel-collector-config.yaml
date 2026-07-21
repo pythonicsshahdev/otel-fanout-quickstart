@@ -12,6 +12,8 @@ processors:
     send_batch_size: 1024
 
 exporters:
+  debug:
+    verbosity: basic
   opensearch/traces:
     http:
       endpoint: "http://opensearch:9200"
@@ -36,6 +38,14 @@ service:
                 host: "0.0.0.0"
                 port: 8888
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
     traces:
       receivers: [otlp]
       processors: [batch]

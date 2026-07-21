@@ -22,6 +22,9 @@ services:
   vector:
     image: pythonicshahdev/boomi-vector:latest
     container_name: vector
+    command: ["--config", "/etc/vector/vector.toml"]
+    volumes:
+      - ./vector.toml:/etc/vector/vector.toml:ro
     ports:
       - "4317:4317"
       - "4318:4318"

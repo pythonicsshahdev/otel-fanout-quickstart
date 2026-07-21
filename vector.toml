@@ -1,23 +1,28 @@
-[sources.otel_input]
+[sources.boomi_otlp]
 type = "opentelemetry"
 
-[sources.otel_input.grpc]
-address = "0.0.0.0:4320"
+[sources.boomi_otlp.grpc]
+address = "0.0.0.0:4317"
 
-[sources.otel_input.http]
-address = "0.0.0.0:4321"
+[sources.boomi_otlp.http]
+address = "0.0.0.0:4318"
 
 [transforms.logs_transformed]
 type = "remap"
-inputs = ["otel_input.logs"]
+inputs = ["boomi_otlp.logs"]
 source = '''
 .ingestion_timestamp = now()
 .data_source = "boomi"
+
+if exists(.attributes) {
+  .attributes_raw = encode_json(.attributes)
+  del(.attributes)
+}
 '''
 
 [transforms.metrics_transformed]
 type = "remap"
-inputs = ["otel_input.metrics"]
+inputs = ["boomi_otlp.metrics"]
 source = '''
 .ingestion_timestamp = now()
 .data_source = "boomi"
@@ -38,3 +43,27 @@ endpoints = ["http://opensearch:9200"]
 mode = "bulk"
 bulk.index = "boomi-metrics"
 api_version = "v8"
+
+[sinks.newrelic_logs]
+type = "opentelemetry"
+inputs = ["boomi_otlp.logs"]
+
+[sinks.newrelic_logs.protocol]
+type = "http"
+uri = "https://otlp.nr-data.net/v1/logs"
+encoding.codec = "json"
+
+[sinks.newrelic_logs.protocol.request.headers]
+api-key = "REDACTED_NR_KEY"
+
+[sinks.newrelic_metrics]
+type = "opentelemetry"
+inputs = ["boomi_otlp.metrics"]
+
+[sinks.newrelic_metrics.protocol]
+type = "http"
+uri = "https://otlp.nr-data.net/v1/metrics"
+encoding.codec = "json"
+
+[sinks.newrelic_metrics.protocol.request.headers]
+api-key = "REDACTED_NR_KEY"

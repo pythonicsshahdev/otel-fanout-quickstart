@@ -12,6 +12,8 @@ processors:
     send_batch_size: 1024
 
 exporters:
+  debug:
+    verbosity: basic
   opensearch/traces:
     http:
       endpoint: "{{consumers.opensearch.endpoint}}"
@@ -44,6 +46,10 @@ exporters:
     headers:
       Authorization: "Api-Token {{consumers.dynatrace.api_token}}"
 {{/if}}
+{{#if consumers.prometheus.enabled}}
+  prometheusremotewrite/prometheus:
+    endpoint: "{{consumers.prometheus.endpoint}}"
+{{/if}}
 
 extensions:
   health_check:
@@ -61,6 +67,14 @@ service:
                 host: "0.0.0.0"
                 port: 8888
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug{{#if consumers.splunk.enabled}}, splunk_hec/splunk{{/if}}{{#if consumers.newrelic.enabled}}, otlp/newrelic{{/if}}{{#if consumers.datadog.enabled}}, datadog/datadog{{/if}}{{#if consumers.dynatrace.enabled}}, otlp/dynatrace{{/if}}{{#if consumers.prometheus.enabled}}, prometheusremotewrite/prometheus{{/if}}]
     traces:
       receivers: [otlp]
       processors: [batch]
