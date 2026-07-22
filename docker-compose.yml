@@ -28,6 +28,7 @@ services:
     ports:
       - "4317:4317"
       - "4318:4318"
+      - "9598:9598"
     networks:
       - boomi-net
     depends_on:

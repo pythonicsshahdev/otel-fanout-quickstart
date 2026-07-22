@@ -7,6 +7,9 @@ address = "0.0.0.0:4317"
 [sources.boomi_otlp.http]
 address = "0.0.0.0:4318"
 
+[sources.internal_metrics]
+type = "internal_metrics"
+
 [transforms.logs_transformed]
 type = "remap"
 inputs = ["boomi_otlp.logs"]
@@ -43,3 +46,8 @@ endpoints = ["http://opensearch:9200"]
 mode = "bulk"
 bulk.index = "boomi-metrics"
 api_version = "v8"
+
+[sinks.prometheus_exporter]
+type = "prometheus_exporter"
+inputs = ["internal_metrics"]
+address = "0.0.0.0:9598"

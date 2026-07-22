@@ -4,23 +4,42 @@
   "schemaVersion": 39,
   "version": 1,
   "refresh": "30s",
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timezone": "browser",
-  "tags": ["otel", "pipeline"],
+  "tags": [
+    "otel",
+    "pipeline"
+  ],
   "panels": [
     {
       "type": "row",
       "title": "Ingestion",
       "id": 1,
-      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
       "type": "stat",
       "title": "Logs Received",
       "id": 2,
-      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -29,13 +48,31 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "orientation": "auto",
         "colorMode": "value",
         "graphMode": "area"
       },
       "fieldConfig": {
-        "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
         "overrides": []
       }
     },
@@ -43,8 +80,16 @@
       "type": "stat",
       "title": "Metric Points Received",
       "id": 3,
-      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 6,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -53,12 +98,30 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "colorMode": "value",
         "graphMode": "area"
       },
       "fieldConfig": {
-        "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } },
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
         "overrides": []
       }
     },
@@ -66,8 +129,16 @@
       "type": "stat",
       "title": "Spans Received",
       "id": 4,
-      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -76,12 +147,30 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "colorMode": "value",
         "graphMode": "area"
       },
       "fieldConfig": {
-        "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] } },
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
         "overrides": []
       }
     },
@@ -89,8 +178,16 @@
       "type": "stat",
       "title": "Export Errors",
       "id": 5,
-      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 18,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -99,18 +196,30 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "colorMode": "background"
       },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           }
         },
@@ -121,8 +230,16 @@
       "type": "timeseries",
       "title": "Ingestion Rate",
       "id": 6,
-      "gridPos": { "x": 0, "y": 5, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -141,83 +258,145 @@
         }
       ],
       "fieldConfig": {
-        "defaults": { "unit": "short" },
+        "defaults": {
+          "unit": "short"
+        },
         "overrides": []
       },
-      "options": { "tooltip": { "mode": "multi" } }
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
       "type": "row",
       "title": "Exporters",
       "id": 7,
-      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 1 },
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
       "type": "timeseries",
       "title": "Export Rate by Exporter",
       "id": 8,
-      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
           "expr": "rate(otelcol_exporter_sent_log_records_total[1m])",
-          "legendFormat": "Logs → {{exporter}}"
+          "legendFormat": "Logs \u2192 {{exporter}}"
         },
         {
           "refId": "B",
           "expr": "rate(otelcol_exporter_sent_spans_total[1m])",
-          "legendFormat": "Spans → {{exporter}}"
+          "legendFormat": "Spans \u2192 {{exporter}}"
         },
         {
           "refId": "C",
           "expr": "rate(otelcol_exporter_sent_metric_points_total[1m])",
-          "legendFormat": "Metrics → {{exporter}}"
+          "legendFormat": "Metrics \u2192 {{exporter}}"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "options": { "tooltip": { "mode": "multi" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "Export Failures by Exporter",
       "id": 9,
-      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
           "expr": "rate(otelcol_exporter_send_failed_log_records_total[1m])",
-          "legendFormat": "Logs failed → {{exporter}}"
+          "legendFormat": "Logs failed \u2192 {{exporter}}"
         },
         {
           "refId": "B",
           "expr": "rate(otelcol_exporter_send_failed_spans_total[1m])",
-          "legendFormat": "Spans failed → {{exporter}}"
+          "legendFormat": "Spans failed \u2192 {{exporter}}"
         },
         {
           "refId": "C",
           "expr": "rate(otelcol_exporter_send_failed_metric_points_total[1m])",
-          "legendFormat": "Metrics failed → {{exporter}}"
+          "legendFormat": "Metrics failed \u2192 {{exporter}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "options": { "tooltip": { "mode": "multi" } }
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "Exporter Queue Size",
       "id": 10,
-      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "otel-collector-prom" },
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
       "targets": [
         {
           "refId": "A",
@@ -225,8 +404,202 @@
           "legendFormat": "{{exporter}}"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "options": { "tooltip": { "mode": "multi" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 24,
+        "h": 1
+      },
+      "options": {
+        "content": "## Vector (Logs + Metrics Ingestion)",
+        "mode": "markdown"
+      }
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "Logs Sent to OpenSearch",
+      "gridPos": {
+        "x": 0,
+        "y": 31,
+        "w": 8,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum(vector_component_sent_events_total{component_id=\"opensearch_logs\"})",
+          "legendFormat": "Logs Sent"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Metrics Sent to OpenSearch",
+      "gridPos": {
+        "x": 8,
+        "y": 31,
+        "w": 8,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum(vector_component_sent_events_total{component_id=\"opensearch_metrics\"})",
+          "legendFormat": "Metrics Sent"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "Vector Errors",
+      "gridPos": {
+        "x": 16,
+        "y": 31,
+        "w": 8,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum(vector_component_errors_total) or vector_on()(0)",
+          "legendFormat": "Errors"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Vector Ingestion Rate",
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "otel-collector-prom"
+      },
+      "targets": [
+        {
+          "expr": "rate(vector_component_received_events_total{component_id=\"boomi_otlp\"}[1m])",
+          "legendFormat": "Received from Boomi"
+        },
+        {
+          "expr": "rate(vector_component_sent_events_total{component_id=\"opensearch_logs\"}[1m])",
+          "legendFormat": "Sent (Logs)"
+        },
+        {
+          "expr": "rate(vector_component_sent_events_total{component_id=\"opensearch_metrics\"}[1m])",
+          "legendFormat": "Sent (Metrics)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     }
   ]
 }
