@@ -13,7 +13,7 @@ datasources:
       flavor: opensearch
       logMessageField: message
       logLevelField: severity_number
-      database: boomi-logs-*
+      database: boomi-logs*
     editable: true
 
   - name: OpenSearch Metrics
@@ -25,7 +25,7 @@ datasources:
       timeField: timestamp
       version: "3.0.0"
       flavor: opensearch
-      database: boomi-metrics-*
+      database: boomi-metrics*
     editable: true
 
   - name: OpenSearch Traces
