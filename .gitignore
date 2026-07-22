@@ -5,3 +5,4 @@ npm-debug.log*
 control-plane/frontend/dist/
 .superpowers/
 control-plane/ssl/
+control-plane/.htpasswd
