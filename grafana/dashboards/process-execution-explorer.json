@@ -203,9 +203,8 @@
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [
             { "type": "terms", "id": "2", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } },
-            { "type": "terms", "id": "3", "field": "attributes.execution.topLevelProcessName.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "1" } },
-            { "type": "terms", "id": "4", "field": "attributes.execution.success.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "2" } },
-            { "type": "terms", "id": "5", "field": "attributes.execution.invocationType.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "1" } }
+            { "type": "terms", "id": "3", "field": "attributes.execution.topLevelProcessName.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "1" } },
+            { "type": "terms", "id": "4", "field": "attributes.execution.invocationType.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "1" } }
           ],
           "timeField": "startTime"
         }
@@ -214,7 +213,7 @@
         "defaults": { "unit": "short" },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "traceId" },
+            "matcher": { "id": "byName", "options": "traceId.keyword" },
             "properties": [
               { "id": "displayName", "value": "Trace ID" },
               {
@@ -222,7 +221,7 @@
                 "value": [
                   {
                     "title": "View Logs",
-                    "url": "/explore?orgId=1&left={\"datasource\":\"opensearch-logs\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"grafana-opensearch-datasource\",\"uid\":\"opensearch-logs\"},\"query\":\"trace_id:${__data.fields.traceId}\",\"metrics\":[{\"id\":\"1\",\"type\":\"logs\"}],\"timeField\":\"ingestion_timestamp\"}],\"range\":{\"from\":\"now-3h\",\"to\":\"now\"}}",
+                    "url": "/explore?orgId=1&left={\"datasource\":\"opensearch-logs\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"grafana-opensearch-datasource\",\"uid\":\"opensearch-logs\"},\"query\":\"trace_id:${__data.fields[\\\"traceId.keyword\\\"]}\",\"metrics\":[{\"id\":\"1\",\"type\":\"logs\"}],\"timeField\":\"ingestion_timestamp\"}],\"range\":{\"from\":\"now-3h\",\"to\":\"now\"}}",
                     "targetBlank": true
                   }
                 ]
@@ -230,25 +229,11 @@
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "attributes.execution.topLevelProcessName" },
+            "matcher": { "id": "byName", "options": "attributes.execution.topLevelProcessName.keyword" },
             "properties": [{ "id": "displayName", "value": "Process" }]
           },
           {
-            "matcher": { "id": "byName", "options": "attributes.execution.success" },
-            "properties": [
-              { "id": "displayName", "value": "Status" },
-              {
-                "id": "mappings",
-                "value": [{ "type": "value", "options": {
-                  "true":  { "text": "Success", "color": "green", "index": 0 },
-                  "false": { "text": "Failed",  "color": "red",   "index": 1 }
-                }}]
-              },
-              { "id": "custom.displayMode", "value": "color-background" }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "attributes.execution.invocationType" },
+            "matcher": { "id": "byName", "options": "attributes.execution.invocationType.keyword" },
             "properties": [{ "id": "displayName", "value": "Triggered By" }]
           }
         ]
