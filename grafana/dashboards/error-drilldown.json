@@ -1,0 +1,240 @@
+{
+  "title": "Error Drill-down",
+  "uid": "error-drilldown",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "traces", "errors"],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Error Executions",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "1d", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Processes with Errors",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "attributes.process.name.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "1d", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Error Log Entries",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:>=17",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Avg Failed Execution Duration",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "avg", "field": "durationInNanos" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "1d", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "fieldConfig": { "defaults": { "unit": "ns" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Rate Over Time",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 16, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "*",
+          "alias": "Total Executions",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "alias": "Failed Executions",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Total Executions" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Failed Executions" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "piechart",
+      "title": "Errors by Process",
+      "id": 6,
+      "gridPos": { "x": 16, "y": 4, "w": 8, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.process.name.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "pieType": "pie", "tooltip": { "mode": "single" } },
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Trend by Process",
+      "id": 7,
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "attributes.process.name.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "5" } },
+            { "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "table",
+      "title": "Failed Executions Table",
+      "id": 8,
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 10 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "status.code:Error",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "traceId" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Logs",
+                    "url": "/explore?orgId=1&left={\"datasource\":\"opensearch-logs\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"grafana-opensearch-datasource\",\"uid\":\"opensearch-logs\"},\"query\":\"trace_id:${__data.fields.traceId}\",\"metrics\":[{\"id\":\"1\",\"type\":\"logs\"}],\"timeField\":\"ingestion_timestamp\"}],\"range\":{\"from\":\"now-3h\",\"to\":\"now\"}}",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": { "sortBy": [{ "displayName": "Count", "desc": true }] }
+    },
+    {
+      "type": "logs",
+      "title": "Error Logs Stream",
+      "id": 9,
+      "gridPos": { "x": 0, "y": 30, "w": 24, "h": 10 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+          "query": "severity_number:>=17",
+          "metrics": [{ "id": "1", "type": "logs", "settings": { "limit": "500" } }],
+          "bucketAggs": [],
+          "timeField": "ingestion_timestamp"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showTime": true,
+        "wrapLogMessage": true
+      }
+    }
+  ]
+}

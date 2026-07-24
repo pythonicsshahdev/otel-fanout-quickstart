@@ -1,0 +1,231 @@
+{
+  "title": "Process Execution Explorer",
+  "uid": "process-execution-explorer",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "traces", "process"],
+  "templating": {
+    "list": [
+      {
+        "name": "process_name",
+        "label": "Process",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+        "query": "{\"find\": \"terms\", \"field\": \"attributes.process.name.keyword\"}",
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "refresh": 2,
+        "sort": 1,
+        "current": {},
+        "options": [],
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Executions",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Successful",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND attributes.execution.success:true",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "green", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Failed",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND status.code:Error",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "traceId.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Avg Duration",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name",
+          "metrics": [{ "id": "1", "type": "avg", "field": "durationInNanos" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "ns" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Executions Over Time",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND attributes.execution.success:true",
+          "alias": "Successful",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND status.code:Error",
+          "alias": "Failed",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Failed" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "piechart",
+      "title": "Invocation Type Breakdown",
+      "id": 6,
+      "gridPos": { "x": 0, "y": 12, "w": 8, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.execution.invocationType.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "pieType": "donut", "tooltip": { "mode": "single" } },
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "type": "barchart",
+      "title": "Executions by Process",
+      "id": 7,
+      "gridPos": { "x": 8, "y": 12, "w": 16, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.process.name.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "15" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "xTickLabelRotation": -45, "tooltip": { "mode": "single" } }
+    },
+    {
+      "type": "table",
+      "title": "Execution List",
+      "id": 8,
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 10 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "traceId" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Logs",
+                    "url": "/explore?orgId=1&left={\"datasource\":\"opensearch-logs\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"grafana-opensearch-datasource\",\"uid\":\"opensearch-logs\"},\"query\":\"trace_id:${__data.fields.traceId}\",\"metrics\":[{\"id\":\"1\",\"type\":\"logs\"}],\"timeField\":\"ingestion_timestamp\"}],\"range\":{\"from\":\"now-3h\",\"to\":\"now\"}}",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": { "sortBy": [{ "displayName": "Count", "desc": true }] }
+    }
+  ]
+}

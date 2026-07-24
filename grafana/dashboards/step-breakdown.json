@@ -1,0 +1,268 @@
+{
+  "title": "Step-level Breakdown",
+  "uid": "step-breakdown",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["otel", "traces", "process"],
+  "templating": {
+    "list": [
+      {
+        "name": "process_name",
+        "label": "Process",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+        "query": "{\"find\": \"terms\", \"field\": \"attributes.process.name.keyword\"}",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "sort": 1,
+        "hide": 0,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Steps",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Unique Step Types",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type",
+          "metrics": [{ "id": "1", "type": "cardinality", "field": "attributes.processStep.type.keyword" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Avg Step Duration",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type",
+          "metrics": [{ "id": "1", "type": "avg", "field": "durationInNanos" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "ns" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Error Steps",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type AND status.code:Error",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Step Type Distribution",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.processStep.type.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "options": { "pieType": "donut", "tooltip": { "mode": "single" } },
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "type": "barchart",
+      "title": "Avg Duration by Step Type",
+      "id": 6,
+      "gridPos": { "x": 8, "y": 4, "w": 16, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type",
+          "metrics": [{ "id": "1", "type": "avg", "field": "durationInNanos" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.processStep.type.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ns" }, "overrides": [] },
+      "options": { "xTickLabelRotation": -45, "tooltip": { "mode": "single" } }
+    },
+    {
+      "type": "barchart",
+      "title": "Top Step Labels by Execution Count",
+      "id": 7,
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.userLabel",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.processStep.userLabel.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "15" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "xTickLabelRotation": -45, "tooltip": { "mode": "single" } }
+    },
+    {
+      "type": "barchart",
+      "title": "Connector Types Used",
+      "id": 8,
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.connector.connector.type",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "terms", "id": "2", "field": "attributes.processStep.connector.connector.type.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "xTickLabelRotation": -45, "tooltip": { "mode": "single" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Step Execution Rate Over Time",
+      "id": 9,
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND attributes.processStep.type:Connector",
+          "alias": "Connector Steps",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND attributes.processStep.type:Map",
+          "alias": "Map Steps",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.type AND NOT attributes.processStep.type:Connector AND NOT attributes.processStep.type:Map",
+          "alias": "Other Steps",
+          "metrics": [{ "id": "1", "type": "count" }],
+          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Connector Steps" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Map Steps" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Other Steps" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "type": "table",
+      "title": "Step Detail Table",
+      "id": 10,
+      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 10 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
+          "query": "attributes.process.name:$process_name AND _exists_:attributes.processStep.userLabel",
+          "metrics": [
+            { "id": "1", "type": "count" },
+            { "id": "2", "type": "avg", "field": "durationInNanos" }
+          ],
+          "bucketAggs": [{ "type": "terms", "id": "3", "field": "attributes.processStep.userLabel.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "25" } }],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Average durationInNanos" }, "properties": [{ "id": "unit", "value": "ns" }, { "id": "displayName", "value": "Avg Duration" }] },
+          { "matcher": { "id": "byName", "options": "Count" }, "properties": [{ "id": "displayName", "value": "Executions" }] }
+        ]
+      },
+      "options": { "sortBy": [{ "displayName": "Executions", "desc": true }] }
+    }
+  ]
+}

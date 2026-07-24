@@ -14,6 +14,13 @@ datasources:
       logMessageField: message
       logLevelField: severity_number
       database: boomi-logs*
+      derivedFields:
+        - name: TraceID
+          matcherType: field
+          matcherQuery: trace_id
+          url: "${__value.raw}"
+          datasourceUid: opensearch-traces
+          urlDisplayLabel: View Trace
     editable: true
 
   - name: OpenSearch Metrics
