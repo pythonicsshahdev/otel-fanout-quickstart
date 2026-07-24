@@ -185,17 +185,37 @@
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
           "query": "status.code:Error",
-          "metrics": [{ "id": "1", "type": "count" }],
-          "bucketAggs": [{ "type": "terms", "id": "2", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } }],
+          "metrics": [
+            { "id": "1", "type": "top_hits", "field": "startTime", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
+            { "id": "2", "type": "top_hits", "field": "attributes.execution.topLevelProcessName", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
+            { "id": "3", "type": "top_hits", "field": "attributes.execution.invocationType", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
+            { "id": "4", "type": "top_hits", "field": "attributes.execution.errorMessage", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
+            { "id": "5", "type": "top_hits", "field": "traceId", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } }
+          ],
+          "bucketAggs": [
+            { "type": "terms", "id": "6", "field": "attributes.execution.id.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "_count", "size": "20" } }
+          ],
           "timeField": "startTime"
         }
       ],
       "fieldConfig": {
-        "defaults": {},
+        "defaults": { "unit": "short" },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "traceId" },
+            "matcher": { "id": "byName", "options": "attributes.execution.id" },
+            "properties": [{ "id": "displayName", "value": "Execution ID" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "startTime" },
             "properties": [
+              { "id": "displayName", "value": "Failed At" },
+              { "id": "unit", "value": "dateTimeAsIso" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "attributes.execution.topLevelProcessName" },
+            "properties": [
+              { "id": "displayName", "value": "Process" },
               {
                 "id": "links",
                 "value": [
@@ -207,10 +227,22 @@
                 ]
               }
             ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "attributes.execution.invocationType" },
+            "properties": [{ "id": "displayName", "value": "Triggered By" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "attributes.execution.errorMessage" },
+            "properties": [{ "id": "displayName", "value": "Error" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "traceId" },
+            "properties": [{ "id": "custom.hidden", "value": true }]
           }
         ]
       },
-      "options": { "sortBy": [{ "displayName": "Count", "desc": true }] }
+      "options": { "sortBy": [{ "displayName": "Failed At", "desc": true }] }
     },
     {
       "type": "logs",
