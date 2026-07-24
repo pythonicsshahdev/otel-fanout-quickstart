@@ -94,4 +94,20 @@ OTEL_SERVICE_NAME=boomi-runtime
 
 ---
 
+## Multi-Node Runtime Clusters
+
+The pipeline layer (Vector + OTel Collector) accepts concurrent OTLP connections from any number of runtime nodes — all nodes point their OTLP config at the same host and data flows in automatically. No per-node changes are needed beyond the standard Atom OTLP settings.
+
+The default deployment is sized for single-node and small environments. For larger clusters, apply the options below as needed — they are progressive, not all required.
+
+| Option | When to apply |
+|---|---|
+| Increase OpenSearch heap (`OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g`) | Multiple nodes generating sustained telemetry volume |
+| Deploy on a dedicated host | Any production or long-running cluster |
+| Replace local OpenSearch with a managed service (AWS OpenSearch, Elastic Cloud) | High-volume clusters where storage durability and availability matter |
+
+For environments requiring high availability or horizontal scaling, the pipeline components (Vector, OTel Collector) are stateless and can be deployed on Kubernetes without re-engineering.
+
+---
+
 *Built by Shah Abdullah — shah.abdullah@boomi.com*
