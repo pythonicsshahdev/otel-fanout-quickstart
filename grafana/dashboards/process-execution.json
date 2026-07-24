@@ -100,21 +100,11 @@
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
           "timeField": "timestamp"
-        },
-        {
-          "refId": "C",
-          "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:execution.config.maxRunningExecutions",
-          "alias": "Max Running (capacity)",
-          "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
-          "timeField": "timestamp"
         }
       ],
       "fieldConfig": {
         "defaults": { "unit": "short" },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Max Running (capacity)" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
           { "matcher": { "id": "byName", "options": "Queued" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },

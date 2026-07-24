@@ -185,15 +185,12 @@
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
           "query": "status.code:Error",
-          "metrics": [
-            { "id": "1", "type": "count" },
-            { "id": "2", "type": "top_hits", "field": "attributes.execution.topLevelProcessName", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
-            { "id": "3", "type": "top_hits", "field": "attributes.execution.invocationType", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
-            { "id": "4", "type": "top_hits", "field": "attributes.execution.errorMessage", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } },
-            { "id": "5", "type": "top_hits", "field": "startTime", "settings": { "size": "1", "sortOrder": "desc", "sortField": "startTime" } }
-          ],
+          "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [
-            { "type": "terms", "id": "6", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } }
+            { "type": "terms", "id": "2", "field": "traceId.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "20" } },
+            { "type": "terms", "id": "3", "field": "attributes.execution.topLevelProcessName.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "1" } },
+            { "type": "terms", "id": "4", "field": "attributes.execution.success.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "2" } },
+            { "type": "terms", "id": "5", "field": "attributes.execution.invocationType.keyword", "settings": { "min_doc_count": "0", "order": "desc", "orderBy": "1", "size": "1" } }
           ],
           "timeField": "startTime"
         }
