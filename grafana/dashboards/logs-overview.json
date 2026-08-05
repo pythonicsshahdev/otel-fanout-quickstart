@@ -7,6 +7,23 @@
   "time": { "from": "now-1h", "to": "now" },
   "timezone": "browser",
   "tags": ["otel", "logs"],
+  "templating": {
+    "list": [
+      {
+        "name": "node",
+        "label": "Node",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+        "query": "{\"find\": \"terms\", \"field\": \"resources.service.name.keyword\"}",
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "refresh": 2,
+        "sort": 1,
+        "current": {}
+      }
+    ]
+  },
   "panels": [
     {
       "type": "stat",
@@ -18,7 +35,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "",
+          "query": "resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "ingestion_timestamp"
@@ -37,7 +54,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:>=17",
+          "query": "severity_number:>=17 AND resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "ingestion_timestamp"
@@ -63,7 +80,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:[13 TO 16]",
+          "query": "severity_number:[13 TO 16] AND resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "ingestion_timestamp"
@@ -89,7 +106,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:[9 TO 12]",
+          "query": "severity_number:[9 TO 12] AND resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "ingestion_timestamp"
@@ -108,7 +125,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:>=17",
+          "query": "severity_number:>=17 AND resources.service.name:$node",
           "alias": "Error",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
@@ -117,7 +134,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:[13 TO 16]",
+          "query": "severity_number:[13 TO 16] AND resources.service.name:$node",
           "alias": "Warn",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
@@ -126,7 +143,7 @@
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:[9 TO 12]",
+          "query": "severity_number:[9 TO 12] AND resources.service.name:$node",
           "alias": "Info",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
@@ -135,7 +152,7 @@
         {
           "refId": "D",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:[5 TO 8]",
+          "query": "severity_number:[5 TO 8] AND resources.service.name:$node",
           "alias": "Debug",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
@@ -160,7 +177,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "",
+          "query": "resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "terms", "id": "2", "field": "severity_number", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "5" } }],
           "timeField": "ingestion_timestamp"
@@ -179,7 +196,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "",
+          "query": "resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [
             { "type": "terms", "id": "3", "field": "resources.service.name.keyword", "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "5" } },
@@ -201,7 +218,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "",
+          "query": "resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "logs", "settings": { "limit": "500" } }],
           "bucketAggs": [],
           "timeField": "ingestion_timestamp"

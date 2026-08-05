@@ -7,6 +7,23 @@
   "time": { "from": "now-1h", "to": "now" },
   "timezone": "browser",
   "tags": ["otel", "jvm", "boomi"],
+  "templating": {
+    "list": [
+      {
+        "name": "node",
+        "label": "Node",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "{\"find\": \"terms\", \"field\": \"tags.runtime.name.keyword\"}",
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "refresh": 2,
+        "sort": 1,
+        "current": {}
+      }
+    ]
+  },
   "panels": [
     {
       "type": "stat",
@@ -17,7 +34,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.current",
+        "query": "name:jvm.heap.current AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -34,7 +51,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.max",
+        "query": "name:jvm.heap.max AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -51,7 +68,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.nonheap.current",
+        "query": "name:jvm.nonheap.current AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -68,7 +85,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.threads.active",
+        "query": "name:jvm.threads.active AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -86,35 +103,44 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.heap.current",
+          "query": "name:jvm.heap.current AND tags.runtime.name:$node",
           "alias": "Heap Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.heap.max",
+          "query": "name:jvm.heap.max AND tags.runtime.name:$node",
           "alias": "Heap Max",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.nonheap.current",
+          "query": "name:jvm.nonheap.current AND tags.runtime.name:$node",
           "alias": "Non-Heap Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
       "fieldConfig": {
         "defaults": { "unit": "bytes" },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Heap Max" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+          { "matcher": { "id": "byRegexp", "options": ".*Heap Max.*" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
         ]
       },
       "options": { "tooltip": { "mode": "multi" } }
@@ -129,19 +155,25 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.gc.count",
+          "query": "name:jvm.gc.count AND tags.runtime.name:$node",
           "alias": "GC Count",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.gc.time",
+          "query": "name:jvm.gc.time AND tags.runtime.name:$node",
           "alias": "GC Time (ms)",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
@@ -158,19 +190,25 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.threads.active",
+          "query": "name:jvm.threads.active AND tags.runtime.name:$node",
           "alias": "Active Threads",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.cpu.time",
+          "query": "name:jvm.cpu.time AND tags.runtime.name:$node",
           "alias": "CPU Time",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
@@ -186,10 +224,10 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.current",
+        "query": "name:jvm.heap.current AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [
-          { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "5", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+          { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
           { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
         ],
         "timeField": "timestamp"

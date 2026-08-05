@@ -7,6 +7,23 @@
   "time": { "from": "now-1h", "to": "now" },
   "timezone": "browser",
   "tags": ["otel", "boomi", "runtime"],
+  "templating": {
+    "list": [
+      {
+        "name": "node",
+        "label": "Node",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
+        "query": "{\"find\": \"terms\", \"field\": \"tags.runtime.name.keyword\"}",
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "refresh": 2,
+        "sort": 1,
+        "current": {}
+      }
+    ]
+  },
   "panels": [
     {
       "type": "stat",
@@ -17,7 +34,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isLowMemoryMode",
+        "query": "name:runtime.isLowMemoryMode AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -34,7 +51,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isOutOfMemoryError",
+        "query": "name:runtime.isOutOfMemoryError AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -51,7 +68,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isRestarting",
+        "query": "name:runtime.isRestarting AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -68,7 +85,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.scheduleCount",
+        "query": "name:runtime.scheduleCount AND tags.runtime.name:$node",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -86,36 +103,45 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadDeliveredCount",
+          "query": "name:runtime.platformMessaging.uploadDeliveredCount AND tags.runtime.name:$node",
           "alias": "Delivered",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadFailureCount",
+          "query": "name:runtime.platformMessaging.uploadFailureCount AND tags.runtime.name:$node",
           "alias": "Failures",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadPendingCount",
+          "query": "name:runtime.platformMessaging.uploadPendingCount AND tags.runtime.name:$node",
           "alias": "Pending",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
       "fieldConfig": {
         "defaults": { "unit": "short" },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Failures" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Pending" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+          { "matcher": { "id": "byRegexp", "options": ".*Failures.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byRegexp", "options": ".*Pending.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
       "options": { "tooltip": { "mode": "multi" } }
@@ -130,26 +156,32 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.downloadDeliveredCount",
+          "query": "name:runtime.platformMessaging.downloadDeliveredCount AND tags.runtime.name:$node",
           "alias": "Delivered",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.downloadFailureCount",
+          "query": "name:runtime.platformMessaging.downloadFailureCount AND tags.runtime.name:$node",
           "alias": "Failures",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
       "fieldConfig": {
         "defaults": { "unit": "short" },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Failures" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+          { "matcher": { "id": "byRegexp", "options": ".*Failures.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
         ]
       },
       "options": { "tooltip": { "mode": "multi" } }
@@ -164,35 +196,44 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.memory",
+          "query": "name:plugin.queueServer.memory AND tags.runtime.name:$node",
           "alias": "Memory Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.diskUsage",
+          "query": "name:plugin.queueServer.diskUsage AND tags.runtime.name:$node",
           "alias": "Disk Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.config.maxMemory",
+          "query": "name:plugin.queueServer.config.maxMemory AND tags.runtime.name:$node",
           "alias": "Max Memory",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],
       "fieldConfig": {
         "defaults": { "unit": "bytes" },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Max Memory" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+          { "matcher": { "id": "byRegexp", "options": ".*Max Memory.*" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 8] } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
         ]
       },
       "options": { "tooltip": { "mode": "multi" } }
@@ -207,19 +248,25 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.count",
+          "query": "name:plugin.queueServer.count AND tags.runtime.name:$node",
           "alias": "Queue Count",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         },
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.config.maxThreads",
+          "query": "name:plugin.queueServer.config.maxThreads AND tags.runtime.name:$node",
           "alias": "Max Threads",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }],
+          "bucketAggs": [
+            { "type": "terms", "id": "3", "field": "tags.runtime.name.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
+            { "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } }
+          ],
           "timeField": "timestamp"
         }
       ],

@@ -7,6 +7,23 @@
   "time": { "from": "now-6h", "to": "now" },
   "timezone": "browser",
   "tags": ["otel", "traces", "errors"],
+  "templating": {
+    "list": [
+      {
+        "name": "node",
+        "label": "Node",
+        "type": "query",
+        "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
+        "query": "{\"find\": \"terms\", \"field\": \"resources.service.name.keyword\"}",
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "refresh": 2,
+        "sort": 1,
+        "current": {}
+      }
+    ]
+  },
   "panels": [
     {
       "type": "stat",
@@ -63,7 +80,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:>=17",
+          "query": "severity_number:>=17 AND resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "count" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "ingestion_timestamp", "settings": { "interval": "1d", "min_doc_count": "0" } }],
           "timeField": "ingestion_timestamp"
@@ -235,7 +252,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-logs" },
-          "query": "severity_number:>=17",
+          "query": "severity_number:>=17 AND resources.service.name:$node",
           "metrics": [{ "id": "1", "type": "logs", "settings": { "limit": "500" } }],
           "bucketAggs": [],
           "timeField": "ingestion_timestamp"
