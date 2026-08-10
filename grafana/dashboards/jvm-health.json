@@ -34,7 +34,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.current AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+        "query": "name:jvm.heap.current",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -51,7 +51,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.max AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+        "query": "name:jvm.heap.max",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -68,7 +68,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.nonheap.current AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+        "query": "name:jvm.nonheap.current",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -85,7 +85,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.threads.active AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+        "query": "name:jvm.threads.active",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -103,7 +103,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.heap.current AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.heap.current",
           "alias": "Heap Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -115,7 +115,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.heap.max AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.heap.max",
           "alias": "Heap Max",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -127,7 +127,7 @@
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.nonheap.current AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.nonheap.current",
           "alias": "Non-Heap Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -155,7 +155,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.gc.count AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.gc.count",
           "alias": "GC Count",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -167,7 +167,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.gc.time AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.gc.time",
           "alias": "GC Time (ms)",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -190,7 +190,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.threads.active AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.threads.active",
           "alias": "Active Threads",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -202,7 +202,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:jvm.cpu.time AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+          "query": "name:jvm.cpu.time",
           "alias": "CPU Time",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -224,7 +224,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:jvm.heap.current AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
+        "query": "name:jvm.heap.current",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [
           { "type": "terms", "id": "3", "field": "tags.jvm.id.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "1", "min_doc_count": "1" } },
