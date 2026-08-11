@@ -21,7 +21,7 @@ Logs and metrics go directly to OpenSearch via Vector. Traces are handled by the
 - **Vector** — high-throughput log and metric ingestion → OpenSearch
 - **OTel Collector** — trace ingestion with consumer fanout
 - **OpenSearch** — always-on telemetry storage
-- **Grafana** — 7 pre-built dashboards (Pipeline Health, Logs, Traces, JVM Health, Process Execution, Runtime Status)
+- **Grafana** — 11 pre-built dashboards (see Dashboard Reference below)
 - **Prometheus** — internal pipeline health scraper
 - **Control Plane UI** — browser-based consumer management with live pipeline diagram
 
@@ -91,6 +91,25 @@ OTEL_METRICS_EXPORTER=otlp
 OTEL_TRACES_EXPORTER=otlp
 OTEL_SERVICE_NAME=boomi-runtime
 ```
+
+---
+
+## Dashboard Reference
+
+| Dashboard | Type | Description |
+|---|---|---|
+| **Pipeline Health** | Infrastructure | Vector + OTel Collector ingestion rates, export errors, queue sizes |
+| **Logs Overview** | Logs | Log volume by severity, top sources, live log stream |
+| **Traces Overview** | Traces | Span rate, error spans, top processes |
+| **JVM Health** | Single Atom | Heap, GC, threads, CPU — for single-node Atom installs |
+| **Runtime Status** | Single Atom | Memory flags, OOM, restart status, queue server — for single-node Atom installs |
+| **Process Execution** | Traces | Execution counts, durations, invocation types |
+| **Process Execution Explorer** | Traces | Per-process drill-down with execution list and log correlation |
+| **Step-level Breakdown** | Traces | Step type distribution, connector breakdown, document flow |
+| **Error Drill-down** | Traces + Logs | Failed execution trends, error log stream, process error ranking |
+| **Molecule Health** | Molecule cluster | Combined JVM + Runtime Status for **multi-node molecule clusters**. Node dropdown filters every panel to a specific node. Uses `tags.jvm.id` for per-node identification. |
+
+> **Atom vs Molecule:** JVM Health and Runtime Status are designed for single-node Atom installs. If you run a Boomi Molecule cluster, use the **Molecule Health** dashboard — it surfaces per-node metrics via a Node dropdown and is built specifically for multi-node visibility.
 
 ---
 
