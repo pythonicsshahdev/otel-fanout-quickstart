@@ -34,7 +34,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isLowMemoryMode",
+        "query": "name:runtime.isLowMemoryMode AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -51,7 +51,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isOutOfMemoryError",
+        "query": "name:runtime.isOutOfMemoryError AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -68,7 +68,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.isRestarting",
+        "query": "name:runtime.isRestarting AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
         "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -85,7 +85,7 @@
       "targets": [{
         "refId": "A",
         "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-        "query": "name:runtime.scheduleCount",
+        "query": "name:runtime.scheduleCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
         "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
         "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "timestamp", "settings": { "interval": "1m", "min_doc_count": "1" } }],
         "timeField": "timestamp"
@@ -103,7 +103,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadDeliveredCount",
+          "query": "name:runtime.platformMessaging.uploadDeliveredCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Delivered",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -115,7 +115,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadFailureCount",
+          "query": "name:runtime.platformMessaging.uploadFailureCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Failures",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -127,7 +127,7 @@
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.uploadPendingCount",
+          "query": "name:runtime.platformMessaging.uploadPendingCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Pending",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -156,7 +156,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.downloadDeliveredCount",
+          "query": "name:runtime.platformMessaging.downloadDeliveredCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Delivered",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -168,7 +168,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:runtime.platformMessaging.downloadFailureCount",
+          "query": "name:runtime.platformMessaging.downloadFailureCount AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Failures",
           "metrics": [{ "id": "1", "type": "max", "field": "gauge.value" }],
           "bucketAggs": [
@@ -196,7 +196,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.memory",
+          "query": "name:plugin.queueServer.memory AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Memory Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -208,7 +208,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.diskUsage",
+          "query": "name:plugin.queueServer.diskUsage AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Disk Used",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -220,7 +220,7 @@
         {
           "refId": "C",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.config.maxMemory",
+          "query": "name:plugin.queueServer.config.maxMemory AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Max Memory",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -248,7 +248,7 @@
         {
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.count",
+          "query": "name:plugin.queueServer.count AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Queue Count",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
@@ -260,7 +260,7 @@
         {
           "refId": "B",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-metrics" },
-          "query": "name:plugin.queueServer.config.maxThreads",
+          "query": "name:plugin.queueServer.config.maxThreads AND (tags.jvm.id:$node OR NOT _exists_:tags.jvm.id)",
           "alias": "Max Threads",
           "metrics": [{ "id": "1", "type": "avg", "field": "gauge.value" }],
           "bucketAggs": [
