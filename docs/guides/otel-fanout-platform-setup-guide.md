@@ -45,14 +45,17 @@ The platform requires no SDK changes on the source side, no proprietary agents, 
    ┌──────────────────────────────┐     ┌─────────────────────┐
    │         Grafana :3000        │◄────│  Prometheus scraper │
    │                              │     │                     │
-   │  7 pre-built dashboards:     │     │  Scrapes OTel       │
+   │  11 pre-built dashboards:     │     │  Scrapes OTel       │
    │  • Pipeline Health           │     │  Collector :8888    │
    │  • Logs Overview             │     │  for pipeline       │
    │  • Traces Overview           │     │  health metrics     │
-   │  • JVM Health                │     └─────────────────────┘
+   │  • JVM Health (Atom)         │     └─────────────────────┘
+   │  • Runtime Status (Atom)     │
+   │  • Molecule Health (cluster) │
    │  • Process Execution         │
-   │  • Runtime Status            │
-   │  • (extensible)              │
+   │  • Process Execution Explorer│
+   │  • Step-level Breakdown      │
+   │  • Error Drill-down          │
    └──────────────────────────────┘
 
    ┌──────────────────────────────────────────────────────────┐
@@ -80,7 +83,7 @@ This platform covers the full observability lifecycle for Boomi and AI agent wor
 | **Boomi-native telemetry** | JVM heap, GC, process execution counts, queue depth, messaging delivery — all pre-built dashboards |
 | **AI agent ready** | Any OTLP source (LangChain, Copilot, Boomi Agent Studio) auto-integrates with the same pipeline |
 | **Control plane UI** | No YAML editing required to add or change consumers — browser-based with live feedback |
-| **7 Grafana dashboards** | Immediately useful on first run — pipeline health, runtime metrics, trace analysis |
+| **11 Grafana dashboards** | Immediately useful on first run — pipeline health, runtime metrics, trace analysis, per-node molecule visibility |
 | **Free cloud tier** | New Relic free tier (100 GB/month) works out of the box — documented end-to-end |
 | **GitOps-ready** | All configuration in version-controlled files; `consumers.json` is Kubernetes ConfigMap-portable |
 | **Documented** | Full technical setup guide with architecture diagrams, screenshot placeholders, and raw telemetry samples |
@@ -103,7 +106,7 @@ This platform covers the full observability lifecycle for Boomi and AI agent wor
 | `otel-collector` | `otel/opentelemetry-collector-contrib` | 4317, 4318 | OTLP ingestion and fan-out hub |
 | `opensearch` | `opensearchproject/opensearch` | 9200 | Primary telemetry storage (always on) |
 | `prometheus` | `prom/prometheus` | — (internal) | Scrapes collector pipeline metrics for Grafana |
-| `grafana` | Custom (OpenSearch plugin pre-installed) | 3000 | 7 pre-built dashboards |
+| `grafana` | Custom (OpenSearch plugin pre-installed) | 3000 | 11 pre-built dashboards |
 | `control-plane` | Custom (React + Node.js + nginx) | 8090 | Consumer management UI and pipeline diagram |
 
 ---
@@ -130,8 +133,8 @@ Before beginning, ensure the following are available:
 1. Open a terminal and clone the repository:
 
 ```bash
-git clone https://github.com/boomi-internal/otel-fanout-platform.git
-cd otel-fanout-platform
+git clone https://github.com/pythonicsshahdev/otel-fanout-quickstart.git
+cd otel-fanout-quickstart
 ```
 
 2. Verify the directory structure contains the following key files:
@@ -307,7 +310,7 @@ The pipeline diagram provides a real-time view of the telemetry flow through the
 
 ## 5. Grafana Dashboards
 
-Grafana provides seven pre-built dashboards covering pipeline health, runtime telemetry, and Boomi-specific operational metrics. All dashboards are provisioned automatically when the stack starts.
+Grafana provides eleven pre-built dashboards covering pipeline health, runtime telemetry, and Boomi-specific operational metrics. All dashboards are provisioned automatically when the stack starts.
 
 ### Part A: Accessing Grafana
 
@@ -320,9 +323,9 @@ Grafana provides seven pre-built dashboards covering pipeline health, runtime te
 | Username | `admin` |
 | Password | `admin` |
 
-3. From the home screen, click **Dashboards** in the left sidebar to see all seven pre-built dashboards
+3. From the home screen, click **Dashboards** in the left sidebar to see all eleven pre-built dashboards
 
-> 📷 **SCREENSHOT:** Grafana dashboard list showing all 7 dashboards
+> 📷 **SCREENSHOT:** Grafana dashboard list showing all 11 dashboards
 
 > **ℹ️ Note:** All dashboards default to a **Last 1 hour** time range. If your Atom has been running for longer, extend the range to **Last 7 days** using the time picker in the top-right corner to see historical data.
 
@@ -398,9 +401,11 @@ This dashboard queries the `ss4o_traces-traces-*` OpenSearch indices and shows:
 
 ---
 
-### Part E: JVM Health
+### Part E: JVM Health *(Single Atom)*
 
 **Question this dashboard answers:** *How is my Boomi runtime's Java memory and garbage collection performing?*
+
+> **ℹ️ Note:** This dashboard is designed for **single-node Boomi Atom** installs. If you are running a Boomi Molecule cluster with multiple nodes, use the **Molecule Health** dashboard instead for per-node visibility.
 
 Navigate to **Dashboards → JVM Health**
 
@@ -448,9 +453,11 @@ This dashboard queries the `boomi-metrics-*` OpenSearch indices and shows:
 
 ---
 
-### Part G: Runtime Status
+### Part G: Runtime Status *(Single Atom)*
 
 **Question this dashboard answers:** *Is my Boomi runtime healthy, and is it communicating with the platform correctly?*
+
+> **ℹ️ Note:** This dashboard is designed for **single-node Boomi Atom** installs. If you are running a Boomi Molecule cluster with multiple nodes, use the **Molecule Health** dashboard instead for per-node visibility.
 
 Navigate to **Dashboards → Runtime Status**
 
@@ -470,6 +477,94 @@ This dashboard queries the `boomi-metrics-*` OpenSearch indices and shows:
 | **Queue Server Count & Threads** | Number of active queues and thread pool usage |
 
 > **ℹ️ Note:** Any **red** indicator on the health flag panels (Low Memory, OOM, Restarting) should be investigated immediately. These conditions can cause process execution failures and runtime instability.
+
+---
+
+### Part H: Molecule Health *(Boomi Molecule Clusters)*
+
+**Question this dashboard answers:** *How is each individual node in my Boomi Molecule cluster performing — JVM health and runtime status, per node?*
+
+> **ℹ️ Note:** This dashboard is for **Boomi Molecule clusters only** — runtimes with two or more nodes. It will show no data on a single-node Atom install. For single-node Atoms, use the **JVM Health** and **Runtime Status** dashboards.
+
+Navigate to **Dashboards → Molecule Health**
+
+> 📷 **SCREENSHOT:** Molecule Health dashboard showing Node dropdown with two node IPs and per-node heap time series
+
+This dashboard combines JVM and runtime status metrics in a single view, with every panel filtered by the **Node** dropdown:
+
+| Panel | What it tells you |
+|---|---|
+| **Node dropdown** | Lists every cluster node by IP (e.g. `172_31_1_107`, `172_31_43_62`). Select one to filter all panels to that node only. Select **All** to see all nodes simultaneously on time series charts. |
+| **Heap Used / Heap Max / Non-Heap / Active Threads** | Per-node JVM snapshot at last data point — filtered to the selected node |
+| **Heap Usage Over Time** | One line per node — compare heap consumption across the cluster over time |
+| **GC Activity** | Per-node GC count and GC time — identify which node is under memory pressure |
+| **Threads & CPU** | Per-node thread count and CPU time |
+| **Heap Usage by Node** | Dedicated per-node heap comparison chart |
+| **Low Memory / OOM / Restarting / Scheduled Processes** | Per-node runtime health flags — selecting a node shows only that node's status |
+| **Platform Messaging Upload/Download** | Per-node messaging throughput — useful for identifying which node has connectivity issues |
+| **Queue Server Memory & Disk / Count & Threads** | Per-node queue server resource usage |
+
+**How to use for a 2-node molecule:**
+
+1. Open **Dashboards → Molecule Health**
+2. The **Node** dropdown at the top will auto-populate with your cluster node IPs
+3. Select a specific node (e.g. `172_31_1_107`) — all stat panels and time series update to show only that node's data
+4. Switch to the other node (e.g. `172_31_43_62`) to compare
+5. Select **All** to see both nodes together on the time series charts
+
+> **ℹ️ Note:** The Node dropdown is populated from the `tags.jvm.id` field in metrics — this field is only present on Molecule node metrics. On a single-node Atom, the dropdown will show only **All** with no additional options.
+
+---
+
+### Part I: Process Execution Explorer
+
+**Question this dashboard answers:** *For a specific Boomi process, how many executions ran, what were the durations, and can I jump to the logs for a particular execution?*
+
+Navigate to **Dashboards → Process Execution Explorer**
+
+Use the **Process Name** dropdown to select a specific Boomi process. All panels filter to that process.
+
+| Panel | What it tells you |
+|---|---|
+| **Total / Successful / Failed Executions** | Execution outcome summary for the selected process |
+| **Avg Duration** | Mean execution time for this process |
+| **Executions Over Time** | Success vs failure trend — identify when errors started |
+| **Invocation Type Breakdown** | Scheduled vs manual vs API-triggered breakdowns |
+| **Execution List** | Table of individual executions with a **View Logs** link — click to open the correlated log stream in Explore |
+
+---
+
+### Part J: Step-level Breakdown
+
+**Question this dashboard answers:** *What types of steps is my Boomi process using, which connectors, and how much data is flowing through each step?*
+
+Navigate to **Dashboards → Step-level Breakdown**
+
+| Panel | What it tells you |
+|---|---|
+| **Step Type Distribution** | Donut chart of step types (Map, Connector, Branch, etc.) |
+| **Avg Duration by Step Type** | Which step types are slowest on average |
+| **Document Flow** | Inbound vs outbound document counts per step |
+| **Connector Types** | Breakdown of connector technology used across executions |
+
+---
+
+### Part K: Error Drill-down
+
+**Question this dashboard answers:** *Which executions failed, which processes are most error-prone, and what do the error logs say?*
+
+Navigate to **Dashboards → Error Drill-down**
+
+| Panel | What it tells you |
+|---|---|
+| **Total Error Executions / Processes with Errors** | Scope of the error situation |
+| **Error Log Entries** | Count of ERROR-level log messages in the period |
+| **Avg Failed Execution Duration** | How long failed executions ran before failing |
+| **Error Rate Over Time** | Total executions vs failed executions — visualises error rate trend |
+| **Errors by Process** | Pie chart of which processes are failing most |
+| **Error Trend by Process** | Time series — when did each process start failing |
+| **Failed Executions Table** | Per-trace table with **View Logs** link to correlate each failure with its error log stream |
+| **Error Logs Stream** | Live error log stream — filtered to ERROR severity only |
 
 ---
 
@@ -666,4 +761,4 @@ This is a known cosmetic issue with the OpenSearch datasource plugin's health ch
 
 ---
 
-*Guide version: 1.0 | Stack version: otel-fanout-platform @ main | Last updated: 2026-07-18*
+*Guide version: 1.1 | Stack version: otel-fanout-platform @ main | Last updated: 2026-08-11*
