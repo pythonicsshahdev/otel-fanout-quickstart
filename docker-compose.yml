@@ -18,7 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    restart: unless-stopped
+    restart: always
 
   vector:
     image: pythonicshahdev/boomi-vector:latest
@@ -35,7 +35,7 @@ services:
     depends_on:
       opensearch:
         condition: service_healthy
-    restart: unless-stopped
+    restart: always
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -51,7 +51,7 @@ services:
     depends_on:
       opensearch:
         condition: service_healthy
-    restart: on-failure
+    restart: always
 
   prometheus:
     image: prom/prometheus:latest
@@ -64,7 +64,7 @@ services:
       - boomi-net
     depends_on:
       - otel-collector
-    restart: unless-stopped
+    restart: always
 
   grafana:
     build:
@@ -85,7 +85,7 @@ services:
     depends_on:
       - opensearch
       - prometheus
-    restart: unless-stopped
+    restart: always
 
   control-plane:
     build:
@@ -112,7 +112,7 @@ services:
       - boomi-net
     depends_on:
       - otel-collector
-    restart: unless-stopped
+    restart: always
 
 networks:
   boomi-net:
