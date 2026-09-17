@@ -245,15 +245,17 @@ The catch block swallows everything, so it fails silently. The evidence is in th
 
 Also worth knowing: ISM templates only apply to indices created *after* the policy is written, so fixing the pattern won't retroactively attach the policy to the existing `boomi-logs` / `boomi-metrics` indices — those need an explicit `_plugins/_ism/add` call.
 
-### 7.3 Backend test suite fails (2 of 5)
+### 7.3 Backend test suite fails (2 of 5) — FIXED 2026-09-17
 
 ```
 Tests: 2 failed, 3 passed, 5 total
 ```
 
-`__tests__/config-renderer.test.js` asserts the template renders `elasticsearch/logs`, `elasticsearch/metrics`, and `prometheusremotewrite/prometheus`, and that a `metrics:` pipeline exists. The test points at the repo-root template, where none of that is true — but the assertions aren't arbitrary. See 7.6: they match the *other* copy of the template.
+`__tests__/config-renderer.test.js` asserted the template renders `elasticsearch/logs`, `elasticsearch/metrics`, and `prometheusremotewrite/prometheus`, and that a `metrics:` pipeline exists — none of which is true of the root template it points at.
 
-### 7.6 The two HBS templates have diverged ⚠️
+**Rewritten 2026-09-17; 9 tests, all green.** Coverage: the traces-only pipeline shape, transform ordering (`[transform/boomi_numeric, transform/boomi_usf_fields, batch]`), the duration and `Int()` coercion statements, all eleven extraction patterns surviving Handlebars, the dynatrace `otlphttp` fix, and 7.4 — the Prometheus consumer is asserted **absent**, so implementing it fails the test and forces a deliberate update.
+
+### 7.6 The two HBS templates have diverged ⚠️ — FIXED 2026-09-17
 
 There are two copies, and they are not the same file:
 
@@ -264,7 +266,11 @@ The defaults copy is **baked into the published `otel-fanout-control-plane` imag
 
 In practice the impact is muted today, because Boomi sends logs/metrics to Vector on 4317/4318 and only traces reach the collector — so the stale `logs:`/`metrics:` pipelines sit idle rather than failing loudly. It is a landmine, not an active fire. But it is why 7.3's tests fail: they were written against this copy and never moved.
 
-Fixing this is a behavioural change to the published image and should be a deliberate decision, not a drive-by sync.
+**Resolved 2026-09-17.** The open question above is answered: the quickstart compose sets `TEMPLATE_PATH=/templates/otel-collector-config.hbs` but declares **no `/templates` volume**, so every published deployment renders from the baked copy. The defect was live in production — enabling any consumer in the UI rewrote the collector with the elasticsearch exporters.
+
+`control-plane/defaults/otel-collector-config.hbs` is now byte-identical to the root template (verified by md5 against the built image), and `defaults/otel-collector-config.yaml` carries the same transforms on its traces pipeline so fresh installs work without a consumer save. Published as `otel-fanout-control-plane:latest` / `:2026-09-17`.
+
+Two upgrade notes: `/templates` sits on the container layer with no volume, so a new image always re-seeds the template — but `$CONFIG_OUTPUT_PATH` lives on the persistent `otel-config` volume and is only seeded when absent, so **existing deployments keep their old rendered YAML until someone saves a consumer or the volume is wiped.** And no image push can repair an existing index whose document-count fields are already mapped `text`; that needs the reindex in §4. Fresh installs are fine — dynamic mapping infers correctly from the now-numeric values.
 
 ### 7.4 The Prometheus consumer card is a no-op
 
