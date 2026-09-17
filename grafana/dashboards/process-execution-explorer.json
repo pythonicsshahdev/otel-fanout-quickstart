@@ -109,13 +109,13 @@
           "refId": "A",
           "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch-traces" },
           "query": "attributes.process.name:$process_name",
-          "metrics": [{ "id": "1", "type": "avg", "field": "durationInNanos" }],
+          "metrics": [{ "id": "1", "type": "avg", "field": "attributes.duration_ms" }],
           "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "startTime", "settings": { "interval": "auto", "min_doc_count": "0" } }],
           "timeField": "startTime"
         }
       ],
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
-      "fieldConfig": { "defaults": { "unit": "ns" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
     },
     {
       "type": "timeseries",

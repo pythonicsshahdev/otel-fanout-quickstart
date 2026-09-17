@@ -1,0 +1,1046 @@
+{
+  "title": "API Performance",
+  "uid": "api-performance",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "tags": [
+    "otel",
+    "traces",
+    "api"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "route",
+        "type": "query",
+        "label": "Endpoint",
+        "datasource": {
+          "type": "grafana-opensearch-datasource",
+          "uid": "opensearch-traces"
+        },
+        "query": "{\"find\":\"terms\",\"field\":\"attributes.http.route.keyword\",\"size\":50}",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "*",
+        "multi": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API Requests",
+      "id": 1,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH) AND attributes.http.route:$route",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "1d",
+                "min_doc_count": "0"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Distinct Endpoints",
+      "id": 2,
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH)",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.http.route.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "100"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "/^Count$/"
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Error Responses (logged)",
+      "id": 3,
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "_exists_:attributes.responseCode AND NOT attributes.responseCode:0",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "1d",
+                "min_doc_count": "1"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ]
+        },
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "description": "Boomi marks every API root span status Ok, so span status cannot detect failures. This counts spans whose logger reported a non-zero responseCode."
+    },
+    {
+      "type": "stat",
+      "title": "Avg Latency",
+      "id": 4,
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH) AND attributes.http.route:$route",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "attributes.duration_ms"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "1d",
+                "min_doc_count": "1"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ]
+        },
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate by Endpoint",
+      "id": 5,
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH)",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "3",
+              "field": "attributes.http.route.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "10"
+              }
+            },
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency Percentiles Over Time",
+      "id": 6,
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH) AND attributes.http.route:$route",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "attributes.duration_ms",
+              "settings": {
+                "percents": [
+                  "50",
+                  "95",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "1"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p50.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p50"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p95"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p99"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Endpoint Performance (count, avg, p50/p95/p99)",
+      "id": 7,
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "attributes.http.request.method:(GET OR POST OR PUT OR DELETE OR PATCH)",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            },
+            {
+              "id": "3",
+              "type": "avg",
+              "field": "attributes.duration_ms"
+            },
+            {
+              "id": "4",
+              "type": "percentiles",
+              "field": "attributes.duration_ms",
+              "settings": {
+                "percents": [
+                  "50",
+                  "95",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.http.route.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "25"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*duration_ms.*"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Average"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "displayName",
+                "value": "Avg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p50.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p50"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p95"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99.0 attributes.duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p99"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "attributes.http.route.keyword"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Endpoint"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "Count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "text",
+      "title": "",
+      "id": 8,
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Business dimensions\nBoomi cannot attach custom HTTP headers to a span, so `consumerId`, `responseCode` and the rest are parsed out of **Notify shape messages** by the collector. They therefore sit on the Notify span, not the API root span \u2014 which is why these panels show **counts and outcomes per consumer, but not latency per consumer**. Latency lives on the root span above. To get per-consumer latency, add an exit Notify that logs `consumerId` alongside elapsed ms (`1-APIEntryLogger` already records `txnapiStartTime`)."
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Requests by Consumer",
+      "id": 9,
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.consumerId.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "15"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "xTickLabelRotation": -45,
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Requests by Sub-Consumer",
+      "id": 10,
+      "gridPos": {
+        "x": 8,
+        "y": 24,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.subConsumerId.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "15"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "xTickLabelRotation": -45,
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Backend Endpoint Mix",
+      "id": 11,
+      "gridPos": {
+        "x": 16,
+        "y": 24,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.endPoint.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "10"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Response Codes",
+      "id": 12,
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.responseCode.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "15"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "xTickLabelRotation": -45,
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "HTTP Status (from error logger)",
+      "id": 13,
+      "gridPos": {
+        "x": 8,
+        "y": 32,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.httpStatus.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "15"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "xTickLabelRotation": -45,
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Scenario Outcome",
+      "id": 14,
+      "gridPos": {
+        "x": 16,
+        "y": 32,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "terms",
+              "id": "2",
+              "field": "attributes.scenario.keyword",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "1",
+                "size": "10"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Products Priced & Division Mix",
+      "id": 15,
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "opensearch-traces"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "opensearch-traces"
+          },
+          "query": "",
+          "alias": "Products Priced",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "attributes.priced"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "type": "date_histogram",
+              "id": "2",
+              "field": "startTime",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ],
+          "timeField": "startTime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    }
+  ]
+}
