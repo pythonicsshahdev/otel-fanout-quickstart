@@ -230,18 +230,43 @@ image with baked-in provisioning is, because it's what makes the kit
 
 ## Testing / Verification
 
-No unit-test story for a load-test script — verification is operational:
+No business logic to unit-test in the Dockerfile/compose/dashboard-JSON
+pieces — those are declarative config, verified by running them. The k6
+script is the one piece with actual branching logic (auth-mode selection,
+header construction, status checks), and that gets isolated, no-real-target
+verification before it ever touches a real Boomi endpoint.
 
-1. `docker compose up -d prometheus grafana` — confirm both containers
-   report healthy / running.
-2. `docker compose run --rm k6` against a reachable test target (the real
-   Boomi API, or `https://httpbin.org` as a dry run if the real endpoint
-   isn't ready) — confirm k6 exits 0 (or reports threshold failures clearly,
-   not a crash).
-3. Open `http://localhost:3001`, confirm the k6 dashboard shows non-empty
-   panels for the just-completed run (VUs ramped as scripted, latency
-   percentiles populated, request rate non-zero).
-4. If publishing: after the buildx push, run a fresh `docker compose up`
+1. **Script dry-run, no real target.** Before pointing at Boomi at all, run
+   the script at minimal scale against a public echo endpoint:
+   ```
+   docker compose run --rm -e BASE_URL=https://httpbin.org -e AUTH_MODE=basic \
+     -e BASIC_USER=user -e BASIC_PASS=pass \
+     k6 run --vus 1 --iterations 1 /scripts/api-load-test.js
+   ```
+   using `https://httpbin.org/basic-auth/user/pass` as the path under test —
+   confirms the script parses, the auth branch builds the right header, and
+   checks pass, independent of load-generation concerns.
+2. **Both auth branches exercised**, not just the default — repeat step 1
+   with `AUTH_MODE=apikey` / `API_KEY_HEADER` / `API_KEY_VALUE` against
+   `https://httpbin.org/headers` (asserting the header round-trips in the
+   response body) — so the untested branch isn't the one that breaks during
+   a real run.
+3. **`docker compose config`** — validates the compose YAML and `.env`
+   substitution (catches the `K6_*` → unprefixed env var mapping being
+   wrong) before the first real `up`.
+4. **Full dry run.** `docker compose up -d prometheus grafana` — confirm
+   both containers report healthy/running — then `docker compose run --rm k6`
+   against the real target (or `httpbin.org` again if the real endpoint
+   isn't ready yet) at the full ramping profile — confirm k6 exits 0 (or
+   reports threshold failures clearly, not a crash).
+5. **Dashboard verification via API, not just eyeballing.** This stack has
+   a standing lesson that panels can silently read zero (an aggregation/
+   `min_doc_count` trap bit the OpenSearch dashboards before) — don't trust
+   "the page rendered." After step 4, hit each k6 dashboard panel through
+   Grafana's `/api/ds/query` and confirm non-empty series for VUs, request
+   rate, latency percentiles, and error rate — not just that
+   `http://localhost:3001` loads.
+6. **If publishing:** after the buildx push, run a fresh `docker compose up`
    against the **published** image (temporarily swap `build:` for
    `image: pythonicshahdev/boomi-k6-grafana:latest` in a scratch copy, or
    just pull-and-run it standalone) to confirm it comes up pre-provisioned
