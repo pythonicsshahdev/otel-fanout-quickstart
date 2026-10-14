@@ -8,3 +8,10 @@ scrape_configs:
   - job_name: vector
     static_configs:
       - targets: ['vector:9598']
+  # Optional performance-testing swimlane (see docker-compose.perf.yml). Targets are written per run
+  # by perf tooling with a run_id label; with no files present this job is simply empty.
+  - job_name: jmeter
+    scrape_interval: 1s   # 5 s under-counted short runs by 7-11 %; 1 s brings it to ~3 %
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/*.json']
+        refresh_interval: 5s   # host-mounted dirs under Colima may not deliver inotify events; poll instead

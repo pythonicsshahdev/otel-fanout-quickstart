@@ -1,0 +1,8 @@
+# Opt-in performance-testing swimlane. The base stack is unchanged without this file.
+#   docker-compose -f docker-compose.yml -f docker-compose.perf.yml up -d prometheus
+# Mounts a directory (not a single file) so per-run scrape targets can be added without
+# recreating the container.
+services:
+  prometheus:
+    volumes:
+      - ./prometheus/targets:/etc/prometheus/targets
